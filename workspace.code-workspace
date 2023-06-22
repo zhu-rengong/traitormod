@@ -5,14 +5,30 @@
 		}
 	],
 	"settings": {
-
+		"Lua.diagnostics.disable": [
+			"param-type-mismatch",
+			"return-type-mismatch",
+			"undefined-field",
+			"need-check-nil",
+			"assign-type-mismatch",
+			"redundant-return-value",
+			"missing-parameter",
+			"undefined-global",
+			"missing-return-value",
+			"undefined-doc-name",
+			"missing-return",
+			"cast-local-type",
+			"deprecated",
+		],
 		"Lua.diagnostics.libraryFiles": "Enable",
-    	"Lua.workspace.library": [
-        	"B:/programming/BLua/btlua-docs/types/server",
-			"B:/programming/BLua/btlua-docs/types/shared"
+		"Lua.workspace.library": [
+			// "F:/RemRepo/Barotrauma/LuaScript/btlua-docs/types/client",
+			"F:/RemRepo/Barotrauma/LuaScript/btlua-docs/types/server",
+			"F:/RemRepo/Barotrauma/LuaScript/btlua-docs/types/shared",
 		],
 		"Lua.diagnostics.globals": [
-			"ServerLogMessageType"
+			"CLIENT",
+			"SERVER"
 		],
 	},
 }
