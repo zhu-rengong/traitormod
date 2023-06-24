@@ -40,7 +40,7 @@ language.HelpTraitor =
 language.HelpAdmin =
 [[
 !traitoralive - 检查所有叛徒是否死亡。
-!roundinfo - 显示回合信息（剧透！）。
+!roundinfo - 显示回合信息（剧透——————有胃2.7！）。
 !allpoints - 显示所有连接客户端的点数。
 !addpoint [Client] [+/-Amount] - 为客户端添加点数。
 !addlife [Client] [+/-Amount] - 为客户端添加生命值。
@@ -189,7 +189,7 @@ language.ObjectiveSurvive = "完成至少一个目标并在巡回中生存。"
 language.ObjectiveStealCaptainID = "偷船长的ID卡。"
 language.ObjectiveStealID = "偷走%s的ID卡，持续%s秒。"
 language.ObjectiveKidnap = "用手铐铐住%s，持续%s秒。"
-language.ObjectivePoisonCaptain = "用%s毒死船长。"
+language.ObjectivePoisonCaptain = "毒死 %s （使用 %s）。"
 language.ObjectiveWreckGift = "拿到礼物。"
 
 language.ObjectiveFinishAllObjectives = "完成所有目标并获得1条生命。"
