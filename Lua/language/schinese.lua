@@ -3,13 +3,13 @@ language.Name = "SChinese"
 
 language.TipText = "提示："
 language.Tips = {
-    "你可以在死亡时使用 !pointshop 作为生物生成。",
-    "叛徒可以访问特殊的叛徒商店。使用 !pointshop 打开它。",
+    "你可以在死亡时使用 !pointshop 生成并控制生物。",
+    "叛徒可以访问特殊的商店。使用 !pointshop 打开。",
     "你可以使用 !role 获取有关当前角色状态的信息。",
     "你可以使用 !help 获取所有可用命令的列表。",
-    "你可以使用 !write 在你死亡时生成的日志簿中写入文本。",
+    "你可以使用 !write 在你死亡时生成的日志簿中写入死亡讯息。",
     "船长和安全官永远不可能成为叛徒。",
-    "当你死亡时，幽灵角色可能会变得可用，你可以使用 !ghostrole 来声明它们。",
+    "当你死亡时，幽灵角色可能会变得可用，你可以使用 !ghostrole 来操控它们。",
     "在聊天中输入 !kill 作为幽灵角色只会将其返回到可用幽灵角色列表中，而不是杀死它。",
     "作为生物在前15秒内死亡将完全退还其价格。",
 }
@@ -26,7 +26,7 @@ language.Help =
 !locatesub - 显示您与潜艇的距离和方向，仅适用于怪物
 !suicide - 杀死您的角色
 !version - 显示traitormod的运行版本
-!write - 写入您的死亡日志簿
+!write - 写入您的死亡讯息
 !roundtime - 显示当前回合时间
 ]]
 
@@ -142,7 +142,7 @@ language.TraitorsRound = "本轮叛徒："
 language.NoTraitors = "没有叛徒。"
 language.TraitorAlive = "你作为叛徒幸存了下来。"
 
-language.PointsInfo = "你有%s点和%s/%s条命。"
+language.PointsInfo = "你有%s的点数和%s/%s条命。"
 language.TraitorInfo = "你的叛徒几率是%s%%，与其他船员相比。"
 
 language.Points = "（%s点）"
@@ -160,8 +160,8 @@ language.Death = "你失去了一条命。在失去点数之前，你还剩下%s
 language.NoLives = "你失去了所有的生命。因此，你失去了一些点数。"
 language.MaxLives = "你已经拥有最多的生命值。"
 
-language.Codewords = "代码词汇：%s"
-language.CodeResponses = "代码响应：%s"
+language.Codewords = "暗号：%s"
+language.CodeResponses = "回应：%s"
 
 language.OtherTraitors = "所有叛徒：%s"
 
@@ -176,19 +176,19 @@ language.SubObjective = "子目标（可选）："
 language.NoObjectives = "没有目标。"
 language.NoObjectivesYet = "还没有目标..."
 
-language.ObjectiveAssassinate = "暗杀%s。"
-language.ObjectiveAssassinateDrunk = "在喝醉的情况下暗杀%s。"
-language.ObjectiveAssassinatePressure = "用高压力压碎%s。"
-language.ObjectiveBananaSlip = "让%s在香蕉上滑倒（%s/%s）次。"
-language.ObjectiveDestroyCaly = "分解%s个皮虫净。"
-language.ObjectiveDrunkSailor = "让%s酒精中毒超过80%。"
+language.ObjectiveAssassinate = "暗杀 %s。"
+language.ObjectiveAssassinateDrunk = "在喝醉的情况下暗杀 %s。"
+language.ObjectiveAssassinatePressure = "用压力压碎 %s。"
+language.ObjectiveBananaSlip = "让 %s 被香蕉滑倒（%s/%s）次。"
+language.ObjectiveDestroyCaly = "分解 %s 个皮虫净。"
+language.ObjectiveDrunkSailor = "让 %s 酒精中毒超过80%。"
 language.ObjectiveGrowMudraptors = "培育（%s/%s）只泥偶迅猛龙。"
-language.ObjectiveHusk = "将%s变成完全的画皮。"
+language.ObjectiveHusk = "将 %s 变成画皮。"
 language.ObjectiveTurnHusk = "将自己变成画皮。"
 language.ObjectiveSurvive = "完成至少一个目标并在巡回中生存。"
-language.ObjectiveStealCaptainID = "偷船长的ID卡。"
-language.ObjectiveStealID = "偷走%s的ID卡，持续%s秒。"
-language.ObjectiveKidnap = "用手铐铐住%s，持续%s秒。"
+language.ObjectiveStealCaptainID = "偷走船长的ID卡。"
+language.ObjectiveStealID = "偷走 %s 的ID卡，持续 %s 秒。"
+language.ObjectiveKidnap = "用手铐铐住 %s，持续 %s 秒。"
 language.ObjectivePoisonCaptain = "毒死 %s （使用 %s）。"
 language.ObjectiveWreckGift = "拿到礼物。"
 
@@ -203,13 +203,13 @@ language.ObjectiveSecurityTeamSurvival = "确保安全官至少有一名成员�
 language.ObjectiveText = "暗杀船员以完成任务。"
 
 language.AssassinationNextTarget = "保持低调，等待进一步指示。"
-language.AssassinationNewObjective = "你的下一个暗杀目标是%s。"
-language.CultistNextTarget = "画皮教会重视你的努力，新目标即将分配。"
-language.HuskNewObjective = "你的下一个感染目标是%s。"
+language.AssassinationNewObjective = "您的下一个暗杀目标是 %s。"
+language.CultistNextTarget = "画皮教会很重视你的努力成果，即将为您分配新的目标。"
+language.HuskNewObjective = "您的下一个感染目标是 %s。"
 language.AssassinationEveryoneDead = "干得好，特工，你做到了！"
 language.HonkmotherNextTarget =
-"Honkmother对你的工作感到满意，但还有更多工作要做，请等待进一步指示。"
-language.HonkmotherNewObjective = "你的下一个目标是%s。"
+"小丑圣母对你的工作感到满意，但还有更多的工作要去做，请等待进一步指示。"
+language.HonkmotherNewObjective = "你的下一个目标是 %s。"
 
 language.AbyssHelpPart1 =
 "收到求救信号... H---! -e-----uck i- --e abys-- W- n--d -e-- A l--her dr---e- us d--- her-. ---se -e a-e of--ring ----thing w- -ave, inclu--- our ---0 -o------"
