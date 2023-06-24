@@ -8,8 +8,8 @@ language.Tips = {
     "你可以使用 !role 获取有关当前角色状态的信息。",
     "你可以使用 !help 获取所有可用命令的列表。",
     "你可以使用 !write 在你死亡时生成的日志簿中写入文本。",
-    "船长和安全警卫永远不可能成为叛徒。",
-    "当你死亡时，鬼魂角色可能会变得可用，你可以使用 !ghostrole 来声明它们。",
+    "船长和安全官永远不可能成为叛徒。",
+    "当你死亡时，幽灵角色可能会变得可用，你可以使用 !ghostrole 来声明它们。",
     "在聊天中输入 !kill 作为幽灵角色只会将其返回到可用幽灵角色列表中，而不是杀死它。",
     "作为生物在前15秒内死亡将完全退还其价格。",
 }
@@ -180,12 +180,12 @@ language.ObjectiveAssassinate = "暗杀%s。"
 language.ObjectiveAssassinateDrunk = "在喝醉的情况下暗杀%s。"
 language.ObjectiveAssassinatePressure = "用高压力压碎%s。"
 language.ObjectiveBananaSlip = "让%s在香蕉上滑倒（%s/%s）次。"
-language.ObjectiveDestroyCaly = "拆除%s个卡利克赛因。"
-language.ObjectiveDrunkSailor = "让%s醉酒超过80%。"
-language.ObjectiveGrowMudraptors = "培育（%s/%s）个泥鳄龙。"
-language.ObjectiveHusk = "将%s变成完整的外壳。"
-language.ObjectiveTurnHusk = "将自己变成外壳。"
-language.ObjectiveSurvive = "完成至少一个目标并在班次中生存。"
+language.ObjectiveDestroyCaly = "分解%s个皮虫净。"
+language.ObjectiveDrunkSailor = "让%s酒精中毒超过80%。"
+language.ObjectiveGrowMudraptors = "培育（%s/%s）只泥偶迅猛龙。"
+language.ObjectiveHusk = "将%s变成完全的画皮。"
+language.ObjectiveTurnHusk = "将自己变成画皮。"
+language.ObjectiveSurvive = "完成至少一个目标并在巡回中生存。"
 language.ObjectiveStealCaptainID = "偷船长的ID卡。"
 language.ObjectiveStealID = "偷走%s的ID卡，持续%s秒。"
 language.ObjectiveKidnap = "用手铐铐住%s，持续%s秒。"
@@ -198,14 +198,14 @@ language.ObjectiveHealCharacters = "治疗（%s/%s）点伤害。"
 language.ObjectiveKillMonsters = "杀死（%s/%s）个%s。"
 language.ObjectiveRepair = "修理（%s/%s）个%s。"
 language.ObjectiveRepairHull = "修复船体（%s/%s）点损伤。"
-language.ObjectiveSecurityTeamSurvival = "确保安保队至少有一名成员生还。"
+language.ObjectiveSecurityTeamSurvival = "确保安全官至少有一名成员生还。"
 
 language.ObjectiveText = "暗杀船员以完成任务。"
 
 language.AssassinationNextTarget = "保持低调，等待进一步指示。"
 language.AssassinationNewObjective = "你的下一个暗杀目标是%s。"
-language.CultistNextTarget = "外壳教会重视你的努力，新目标即将分配。"
-language.HuskNewObjective = "你的下一个外壳目标是%s。"
+language.CultistNextTarget = "画皮教会重视你的努力，新目标即将分配。"
+language.HuskNewObjective = "你的下一个感染目标是%s。"
 language.AssassinationEveryoneDead = "干得好，特工，你做到了！"
 language.HonkmotherNextTarget =
 "Honkmother对你的工作感到满意，但还有更多工作要做，请等待进一步指示。"
@@ -222,7 +222,7 @@ language.AbyssHelpPart5 = "你可以试着为这艘潜艇找一个新电池并�
 language.AbyssHelpDead = "看来就这样结束了...."
 
 language.AmmoDelivery =
-"一批爆炸性线圈枪弹和电磁轨道炮弹已经运到潜艇装甲区。"
+"一批爆炸性电磁枪弹和轨道炮弹已经运到潜艇军械库。"
 language.BeaconPirate =
 "有报告称一名臭名昭著的穿着PUCS服装的海盗正在恐吓这些水域，最近在信标站内发现了该海盗——消灭该海盗可获得整个船员%s点数的奖励。"
 language.WreckPirate =
@@ -234,7 +234,7 @@ language.ClownMagic = "你感到一种奇怪的感觉，突然你就到了另一
 language.CommunicationsOffline =
 "某些东西正在干扰我们所有的通讯系统。估计通讯将离线至少%s分钟。"
 language.CommunicationsBack = "通讯已恢复。"
-language.EmergencyTeam = "一群工程师和机械师已经进入潜艇协助维修。"
+language.EmergencyTeam = "一群工程师和机修工已经进入潜艇协助维修。"
 language.LightsOff = "所有灯光突然熄灭，但电源仍在？发生了什么？"
 language.MaintenanceToolsDelivery =
 "维修工具的交付已经完成，货物在船舱内的黄色箱子里。"
@@ -248,9 +248,9 @@ language.PrisonerSuccess = "囚犯已成功运送，机组人员获得了%s点�
 language.PrisonerFail = "囚犯逃脱了，运输奖励被取消。"
 language.OxygenSafe = "现在可以安全地呼吸制氧机产生的氧气。"
 language.OxygenHusk =
-"氧气发生器已被破坏，画皮寄生虫卵漂浮在了空气中，在你承受足够高剂量之前，你有大约15秒钟的时间去穿戴潜水面罩或潜水服！"
+"氧气发生器已被破坏，画皮寄生虫卵漂浮在了空气中，在你感染之前，你有大约15秒钟的时间去穿戴潜水面罩或潜水服！"
 language.OxygenPoison =
-"氧气发生器已被破坏，现在呼吸空气会导致窒息，您有大约15秒的时间去获取潜水面罩或潜水服，否则您将承受足够高的剂量！"
+"氧气发生器已被破坏，现在呼吸空气会导致窒息，您有大约15秒的时间去获取潜水面罩或潜水服，否则您将缺氧而死！"
 language.PirateCrew =
 "注意！这片海域发现了一艘海盗船！摧毁海盗的反应堆或杀死所有海盗，即可获得整个船员%s点奖励"
 language.PirateCrewYou =
@@ -263,7 +263,7 @@ language.ShadyMissionPart2 =
 "“哦，你好！我们正在寻找有人为我们做一项简单的任务。我们愿意支付高达3000点的费用。有兴趣吗？”"
 language.ShadyMissionPart2Answer = "当然！是什么？"
 language.ShadyMissionPart3 =
-"“在您的潜艇即将通过的这个区域，有一艘旧的沉没潜艇，我们需要在那里放置一些补给品。因为我们现在没有这些补给品，所以您需要自己获取这些补给品。我们将支付1500点用于这些补给品，如果您添加任何其他补给品，我们将再给您1500点。”"
+"“在您的潜艇即将通过的这个区域，有一艘旧的沉没潜艇，我们需要在那里放置一些补给品。因为我们现在没有这些补给，所以您需要自己获取这些补给。我们将支付1500点用于这些补给，如果您添加任何其他补给，我们将再给您1500点。”"
 language.ShadyMissionPart3Answer = "这听起来很可疑，为什么要把这些补给品放在沉没的潜艇里？！"
 language.ShadyMissionPart4 = "“现在这不是你的事情，你会做还是不会做？”"
 language.ShadyMissionPart4AnswerAccept = "接受报价"
@@ -377,7 +377,7 @@ language.Pointshop = {
     spawnascthulhu = "生成克苏鲁",
     spawnaspsilotoad = "生成蟾蜍",
     clown = "小丑",
-    cultist = "邪教徒",
+    cultist = "画皮教徒",
     traitor = "叛徒",
     deathspawn = "死亡孵化体",
     wiring = "电线",
