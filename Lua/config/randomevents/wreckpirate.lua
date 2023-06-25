@@ -1,3 +1,5 @@
+local itbu = require "itbu"
+
 local event = {}
 
 event.Name = "WreckPirate"
@@ -11,7 +13,86 @@ event.OnlyOncePerRound = true
 event.AmountPoints = 800
 event.AmountPointsPirate = 500
 
-event.Start = function ()
+local sonarmarkitbu = itbu {
+    {
+        identifier = "weaponholder",
+        install = true,
+        properties = {
+            noninteractable = true,
+            hiddeningame = true
+        },
+        inventory = {
+            {
+                identifier = "sonarbeacon",
+                tags = "mountableweapon",
+                properties = {
+                    noninteractable = true,
+                    [{ "custominterface", "elementstates" }] = "true,",
+                    [{ "custominterface", "signals" }] = ";Last known pirate position",
+                },
+                serverevents = "custominterface",
+                inventory = {
+                    {
+                        identifier = "batterycell",
+                        properties = { indestructible = true }
+                    }
+                }
+            },
+        }
+    }
+}
+
+local pirateitbu = itbu {
+    { identifier = "pirateclothes", equip = true },
+    {
+        identifier = "pucs",
+        equip = true,
+        inventory = {
+            { identifier = "combatstimulantsyringe" },
+            { identifier = "oxygenitetank" }
+        }
+    },
+    {
+        identifier = "shotgun",
+        inventory = {
+            { identifier = "shotgunshell", fillinventory = true }
+        }
+    },
+    { identifier = "shotgunshell", stacks = true },
+    {
+        identifier = "smg",
+        inventory = {
+            { identifier = "smgmagazinedepletedfuel" }
+        }
+    },
+    { identifier = "smgmagazine", stacks = 1 },
+    { identifier = "antibiotics", amount = 4 },
+    { identifier = "antiparalysis", amount = 2 },
+    { identifier = "oxygenitetank", amount = 4 },
+    {
+        identifier = "toolbelt",
+        inventory = {
+            { identifier = "antidama1", amount = 2 },
+            { identifier = "antibleeding1", amount = 6 },
+            { identifier = "alienblood" },
+            { identifier = "fuelrod" },
+            {
+                identifier = "underwaterscooter",
+                inventory = {
+                    { identifier = "batterycell" }
+                }
+            },
+            {
+                identifier = "handheldsonar",
+                inventory = {
+                    { identifier = "batterycell" }
+                }
+            },
+        }
+    }
+}
+
+event.Start = function()
     if #Level.Loaded.Wrecks == 0 then
         return
     end
@@ -41,90 +122,28 @@ event.Start = function ()
 
     local headset = character.Inventory.GetItemInLimbSlot(InvSlotType.Headset)
     if headset then
-       local wifi = headset.GetComponentString("WifiComponent")
-       if wifi then
+        local wifi = headset.GetComponentString("WifiComponent")
+        if wifi then
             wifi.TeamID = CharacterTeamType.Team1
-       end
-    end
-
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.Prefabs["sonarbeacon"], wreck.WorldPosition, nil, nil, function(item)
-        item.NonInteractable = true
-
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.Prefabs["batterycell"], item.OwnInventory, nil, nil, function(bat)
-            bat.Indestructible = true
-
-            local interface = item.GetComponentString("CustomInterface")
-
-            interface.customInterfaceElementList[1].State = true
-            interface.customInterfaceElementList[2].Signal = "Last known pirate position"
-
-            item.CreateServerEvent(interface, interface)
-        end)
-    end)
-
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("shotgun"), character.Inventory, nil, nil, function (item)
-        for i = 1, 6, 1 do
-            Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("shotgunshell"), item.OwnInventory)
         end
-    end)
-
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("smg"), character.Inventory, nil, nil, function (item)
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("smgmagazinedepletedfuel"), item.OwnInventory)
-    end)
-
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("smgmagazine"), character.Inventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("smgmagazine"), character.Inventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("antiparalysis"), character.Inventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("antiparalysis"), character.Inventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("oxygenitetank"), character.Inventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("oxygenitetank"), character.Inventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("oxygenitetank"), character.Inventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("oxygenitetank"), character.Inventory)
-
-    for i = 1, 12, 1 do
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("shotgunshell"), character.Inventory)
     end
-
-    for i = 1, 4, 1 do
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("antibiotics"), character.Inventory)
-    end
-    local toolbelt = character.Inventory.GetItemInLimbSlot(InvSlotType.Bag)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("antidama1"), toolbelt.OwnInventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("antidama1"), toolbelt.OwnInventory)
-    for i = 1, 6, 1 do
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("antibleeding1"), toolbelt.OwnInventory)
-    end
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("alienblood"), toolbelt.OwnInventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("fuelrod"), toolbelt.OwnInventory)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("underwaterscooter"), toolbelt.OwnInventory, nil, nil, function (item)
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("batterycell"), item.OwnInventory)
-    end)
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("handheldsonar"), toolbelt.OwnInventory, nil, nil, function (item)
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("batterycell"), item.OwnInventory)
-    end)
 
     local oldClothes = character.Inventory.GetItemInLimbSlot(InvSlotType.InnerClothes)
     oldClothes.Drop()
     Entity.Spawner.AddEntityToRemoveQueue(oldClothes)
 
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("pirateclothes"), character.Inventory, nil, nil, function (item)
-        character.Inventory.TryPutItem(item, character.Inventory.FindLimbSlot(InvSlotType.InnerClothes), true, false, character)
-    end)
-
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("pucs"), character.Inventory, nil, nil, function (item)
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("combatstimulantsyringe"), item.OwnInventory)
-        Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("oxygenitetank"), item.OwnInventory)
-    end)
+    sonarmarkitbu:spawnat(wreck.WorldPosition)
+    pirateitbu:give(character)
 
     local text = string.format(Traitormod.Language.WreckPirate, event.AmountPoints)
     Traitormod.RoundEvents.SendEventMessage(text, "CrewWalletIconLarge")
 
-    Traitormod.GhostRoles.Ask("Wreck Pirate", function (client)
+    Traitormod.GhostRoles.Ask("Wreck Pirate", function(client)
         Traitormod.LostLivesThisRound[client.SteamID] = false
         client.SetClientCharacter(character)
     end, character)
 
-    Hook.Add("think", "WreckPirate.Think", function ()
+    Hook.Add("think", "WreckPirate.Think", function()
         if character.IsDead then
             event.End()
         end
@@ -137,7 +156,7 @@ event.Start = function ()
 end
 
 
-event.End = function (isEndRound)
+event.End = function(isEndRound)
     Hook.Remove("think", "WreckPirate.Think")
 
     if isEndRound then
@@ -145,7 +164,9 @@ event.End = function (isEndRound)
             local client = Traitormod.FindClientCharacter(event.Character)
             if client then
                 Traitormod.AwardPoints(client, event.AmountPointsPirate)
-                Traitormod.SendMessage(client, string.format(Traitormod.Language.ReceivedPoints, event.AmountPointsPirate), "InfoFrameTabButton.Mission")
+                Traitormod.SendMessage(client,
+                    string.format(Traitormod.Language.ReceivedPoints, event.AmountPointsPirate),
+                    "InfoFrameTabButton.Mission")
             end
         end
 
@@ -159,7 +180,8 @@ event.End = function (isEndRound)
     for _, client in pairs(Client.ClientList) do
         if client.Character and not client.Character.IsDead and client.Character.TeamID == CharacterTeamType.Team1 then
             Traitormod.AwardPoints(client, event.AmountPoints)
-            Traitormod.SendMessage(client, string.format(Traitormod.Language.ReceivedPoints, event.AmountPoints), "InfoFrameTabButton.Mission")
+            Traitormod.SendMessage(client, string.format(Traitormod.Language.ReceivedPoints, event.AmountPoints),
+                "InfoFrameTabButton.Mission")
         end
     end
 end
