@@ -40,13 +40,13 @@ end
 LuaUserData.RegisterType("ItemBuilder.Utils")
 local utils = LuaUserData.CreateStatic("ItemBuilder.Utils")
 
----@class itemblock
+---@class itbublock
 ---@field _prefab userdata
 ---@field _pool_weights? number[]
----@field _pool_objects? (itemblock|itemblock[])[]
+---@field _pool_objects? (itbublock|itbublock[])[]
 ---@field _amount? number
 ---@field _stacks? number
----@field _getamount? fun(self:itemblock, context:itemspawnctx)
+---@field _getamount? fun(self:itbublock, context:itbuspawnctx)
 ---@field ref itembuilder
 ---@field identifier string
 ---@field tags? string
@@ -60,22 +60,22 @@ local utils = LuaUserData.CreateStatic("ItemBuilder.Utils")
 ---@field properties? table<string|{[1]:string,[2]:string,[3]:integer?},boolean|integer|number|string>
 ---@field serverevents? string|{[1]:string,[2]:integer?}|string[]|{[1]:string,[2]:integer?}[]
 ---@field onspawned? fun(item:userdata)
----@field inventory? itemblock[]
----@field pool? {[1]:number,[2]:itemblock|itemblock[]}[]
+---@field inventory? itbublock[]
+---@field pool? {[1]:number,[2]:itbublock|itbublock[]}[]
 
----@class itemspawnctx
+---@class itbuspawnctx
 ---@field inventory? userdata
 ---@field atinventory boolean
 ---@field atiteminventory boolean
 ---@field worldpos? userdata
 ---@field _character? userdata
 
----@param itembuilds itemblock[]
----@param context itemspawnctx
+---@param itembuilds itbublock[]
+---@param context itbuspawnctx
 local function spawn(itembuilds, context)
     ---@param item userdata
-    ---@param itemblock itemblock
-    ---@param context itemspawnctx
+    ---@param itemblock itbublock
+    ---@param context itbuspawnctx
     local function onspawned(item, itemblock, context)
         if itemblock.tags then
             item.Tags = itemblock.tags
@@ -234,9 +234,9 @@ local function spawn(itembuilds, context)
 end
 
 ---@class itembuilder
----@overload fun(itembuilds:itemblock[]):itembuilder
+---@overload fun(itembuilds:itbublock[]):itembuilder
 ---@field _invalid boolean
----@field _itembuilds itemblock[]
+---@field _itembuilds itbublock[]
 local itembuilder = {}
 
 ---@param worldpos userdata
@@ -263,9 +263,9 @@ end
 
 itembuilder.__index = itembuilder
 setmetatable(itembuilder, {
-    ---@param itembuilds itemblock[]
+    ---@param itembuilds itbublock[]
     __call = function(_, itembuilds)
-        ---@param itblds itemblock[]
+        ---@param itblds itbublock[]
         local function construct(itblds)
             local _itblds = t_select(itblds, function(itemblock)
                 if itemblock.amount then
