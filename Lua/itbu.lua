@@ -1,4 +1,5 @@
-if CLIENT then return end
+local log = require("logger")("ItemBuilder")
+local utils = require "ItemBuilder.Utils"
 
 local function t_select(t, f)
     local _t = {}
@@ -6,47 +7,13 @@ local function t_select(t, f)
     return _t
 end
 
----@param msgtype string
----@param text string
----@param color userdata
-local function log(msgtype, text, color)
-    text = text or type(nil)
-    local logtype = ("[ItemBuilder-%s] "):format(msgtype)
-    for i = 1, #text, 1024 do
-        local block = text:sub(i, math.min((i + 1023), #text))
-        local msg = logtype .. block
-        for _, client in pairs(Client.ClientList) do
-            if client.HasPermission(ClientPermissions.All) then
-                local chatMessage = ChatMessage.Create("",
-                    msg, ChatMessageType.Console, nil, nil, nil,
-                    color and color or Color.MediumPurple)
-                Game.SendDirectChatMessage(chatMessage, client)
-            end
-        end
-        Game.Log(msg, ServerLogMessageType.ServerMessage)
-    end
-end
-
-local function log_info(msg) log("Info", msg, Color.White) end
-local function log_debug(msg) log("Debug", msg, Color.Blue) end
-local function log_warn(msg) log("Warn", msg, Color.Orange) end
-local function log_error(msg) log("Error", msg, Color.Red) end
-
-if not CSActive then
-    log_error("C# is not activated!")
-    return
-end
-
-LuaUserData.RegisterType("ItemBuilder.Utils")
-local utils = LuaUserData.CreateStatic("ItemBuilder.Utils")
-
----@class itemblock
+---@class itembuilderblock
 ---@field _prefab userdata
 ---@field _pool_weights? number[]
----@field _pool_objects? (itemblock|itemblock[])[]
+---@field _pool_objects? (itembuilderblock|itembuilderblock[])[]
 ---@field _amount? number
 ---@field _stacks? number
----@field _getamount? fun(self:itemblock, context:itemspawnctx)
+---@field _getamount? fun(self:itembuilderblock, context:itembuilderspawnctx)
 ---@field ref itembuilder
 ---@field identifier string
 ---@field tags? string
@@ -60,22 +27,30 @@ local utils = LuaUserData.CreateStatic("ItemBuilder.Utils")
 ---@field properties? table<string|{[1]:string,[2]:string,[3]:integer?},boolean|integer|number|string>
 ---@field serverevents? string|{[1]:string,[2]:integer?}|string[]|{[1]:string,[2]:integer?}[]
 ---@field onspawned? fun(item:userdata)
----@field inventory? itemblock[]
----@field pool? {[1]:number,[2]:itemblock|itemblock[]}[]
+---@field inventory? itembuilderblock[]
+---@field pool? {[1]:number,[2]:itembuilderblock|itembuilderblock[]}[]
 
----@class itemspawnctx
+---@class itembuilderspawnctx
 ---@field inventory? userdata
 ---@field atinventory boolean
 ---@field atiteminventory boolean
 ---@field worldpos? userdata
 ---@field _character? userdata
 
----@param itembuilds itemblock[]
----@param context itemspawnctx
+---@param itembuilds itembuilderblock[]
+---@param context itembuilderspawnctx
 local function spawn(itembuilds, context)
+    local debugname = nil
+    local log = function(text, pattern)
+        if debugname then
+            log(("[DebugName:%s] %s"):format(debugname, text), pattern)
+        else
+            log(text, pattern)
+        end
+    end
     ---@param item userdata
-    ---@param itemblock itemblock
-    ---@param context itemspawnctx
+    ---@param itemblock itembuilderblock
+    ---@param context itembuilderspawnctx
     local function onspawned(item, itemblock, context)
         if itemblock.tags then
             item.Tags = itemblock.tags
@@ -83,8 +58,14 @@ local function spawn(itembuilds, context)
 
         if context.atinventory then
             if context.atiteminventory then
-                if itemblock.tags and (item.ParentInventory ~= context.inventory) then
-                    context.inventory.TryPutItem(item, nil)
+                if item.ParentInventory ~= context.inventory then
+                    local containable = false
+                    if itemblock.tags and context.inventory.TryPutItem(item, nil) then
+                        containable = true
+                    end
+                    if not containable then
+                        log(("Cannot put %s in %s"):format(tostring(item), tostring(context.inventory.Owner)), 'e')
+                    end
                 end
             else
                 if context._character == nil then
@@ -120,25 +101,25 @@ local function spawn(itembuilds, context)
                             end
                         else
                             if entity == item then
-                                log_error(("Failed to set SP(%s) to '%s' for item(%s)!"):format(propertyName.Value,
-                                    tostring(value), item.Prefab.Identifier.Value))
+                                log(("Failed to set SP(%s) to '%s' for item(%s)!"):format(propertyName.Value,
+                                    tostring(value), item.Prefab.Identifier.Value), 'e')
                             else
-                                log_error(("Failed to set SP(%s) to '%s' for '%s->%s[%i]'!"):format(propertyName.Value,
-                                    tostring(value), item.Prefab.Identifier.Value, indexer[1], indexer[3]))
+                                log(("Failed to set SP(%s) to '%s' for '%s->%s[%i]'!"):format(propertyName.Value,
+                                    tostring(value), item.Prefab.Identifier.Value, indexer[1], indexer[3]), 'e')
                             end
                         end
                     else
                         if entity == item then
-                            log_error(("Could not find any SP with the given name(%s) in item(%s)!"):format(
-                                propertyName.Value, item.Prefab.Identifier.Value))
+                            log(("Could not find any SP with the given name(%s) in item(%s)!"):format(
+                                propertyName.Value, item.Prefab.Identifier.Value), 'e')
                         else
-                            log_error(("Could not find any SP with the given name(%s) in '%s->%s[%i]'!"):format(
-                                propertyName.Value, item.Prefab.Identifier.Value, indexer[1], indexer[3]))
+                            log(("Could not find any SP with the given name(%s) in '%s->%s[%i]'!"):format(
+                                propertyName.Value, item.Prefab.Identifier.Value, indexer[1], indexer[3]), 'e')
                         end
                     end
                 else
-                    log_error(("Could not find any entity matching '%s[%i]' in '%s'!"):format(indexer[1], indexer[3],
-                        item.Prefab.Identifier.Value))
+                    log(("Could not find any entity matching '%s[%i]' in '%s'!"):format(indexer[1], indexer[3],
+                        item.Prefab.Identifier.Value), 'e')
                 end
             end
         end
@@ -153,8 +134,8 @@ local function spawn(itembuilds, context)
                     inventory = itemContainer.Inventory
                 })
             else
-                log_error(("Cannot spawn items in item(%s)'s inventory since it has no inventory!"):format(item.Prefab
-                    .Identifier.Value))
+                log(("Cannot spawn items in item(%s)'s inventory since it has no inventory!"):format(item.Prefab
+                    .Identifier.Value), 'e')
             end
         end
 
@@ -178,55 +159,59 @@ local function spawn(itembuilds, context)
     end
 
     for _, itemblock in ipairs(itembuilds) do
-        if itemblock.ref then
-            local amount = itemblock:_getamount(context)
-            local num = math.floor(amount)
-            for _ = 1, num, 1 do
-                spawn(itemblock.ref._itembuilds, context)
-            end
-        elseif itemblock.pool then
-            local amount = itemblock:_getamount(context)
-            local num = math.floor(amount)
-            for _ = 1, num, 1 do
-                local object = utils.GetPoolItemBlockRandom(itemblock._pool_objects, itemblock._pool_weights)
-                spawn(object, context)
-            end
+        if type(itemblock) == "string" then
+            debugname = #itemblock > 0 and itemblock or nil
         else
-            local amount = itemblock:_getamount(context)
-            local num = math.ceil(amount)
-            for i = 1, num, 1 do
-                local condition = nil
-                if i == num and amount < num then
-                    condition = table.pack(math.modf(amount))[2] * itemblock._prefab.Health
+            if itemblock.ref then
+                local amount = itemblock:_getamount(context)
+                local num = math.floor(amount)
+                for _ = 1, num, 1 do
+                    spawn(itemblock.ref._itembuilds, context)
                 end
-                if context.worldpos then
-                    local shouldspawn = true
-                    if itemblock.install then
-                        for _, sub in pairs(Submarine.MainSubs) do
-                            local borders, worldpos = sub.Borders, sub.WorldPosition
-                            local worldrect = Rectangle(worldpos.X - borders.Width / 2, worldpos.Y + borders.Height / 2,
-                                borders.Width, borders.Height)
-                            if sub.RectContains(worldrect, context.worldpos, true) then
-                                shouldspawn = false
-                                Entity.Spawner.AddItemToSpawnQueue(itemblock._prefab, context.worldpos - sub.Position,
-                                    sub, condition, itemblock.quality, function(item)
-                                        onspawned(item, itemblock, context)
-                                    end)
-                                break
+            elseif itemblock.pool then
+                local amount = itemblock:_getamount(context)
+                local num = math.floor(amount)
+                for _ = 1, num, 1 do
+                    local object = utils.GetPoolItemBlockRandom(itemblock._pool_objects, itemblock._pool_weights)
+                    spawn(object, context)
+                end
+            else
+                local amount = itemblock:_getamount(context)
+                local num = math.ceil(amount)
+                for i = 1, num, 1 do
+                    local condition = nil
+                    if i == num and amount < num then
+                        condition = table.pack(math.modf(amount))[2] * itemblock._prefab.Health
+                    end
+                    if context.worldpos then
+                        local shouldspawn = true
+                        if itemblock.install then
+                            for _, sub in pairs(Submarine.MainSubs) do
+                                local borders, worldpos = sub.Borders, sub.WorldPosition
+                                local worldrect = Rectangle(worldpos.X - borders.Width / 2, worldpos.Y + borders.Height / 2,
+                                    borders.Width, borders.Height)
+                                if sub.RectContains(worldrect, context.worldpos, true) then
+                                    shouldspawn = false
+                                    Entity.Spawner.AddItemToSpawnQueue(itemblock._prefab, context.worldpos - sub.Position,
+                                        sub, condition, itemblock.quality, function(item)
+                                            onspawned(item, itemblock, context)
+                                        end)
+                                    break
+                                end
                             end
                         end
-                    end
-                    if shouldspawn then
-                        Entity.Spawner.AddItemToSpawnQueue(itemblock._prefab, context.worldpos, condition,
+                        if shouldspawn then
+                            Entity.Spawner.AddItemToSpawnQueue(itemblock._prefab, context.worldpos, condition,
+                                itemblock.quality, function(item)
+                                    onspawned(item, itemblock, context)
+                                end)
+                        end
+                    elseif context.inventory then
+                        Entity.Spawner.AddItemToSpawnQueue(itemblock._prefab, context.inventory, condition,
                             itemblock.quality, function(item)
                                 onspawned(item, itemblock, context)
                             end)
                     end
-                elseif context.inventory then
-                    Entity.Spawner.AddItemToSpawnQueue(itemblock._prefab, context.inventory, condition, itemblock
-                        .quality, function(item)
-                            onspawned(item, itemblock, context)
-                        end)
                 end
             end
         end
@@ -234,9 +219,9 @@ local function spawn(itembuilds, context)
 end
 
 ---@class itembuilder
----@overload fun(itembuilds:itemblock[]):itembuilder
+---@overload fun(itembuilds:itembuilderblock[]):itembuilder
 ---@field _invalid boolean
----@field _itembuilds itemblock[]
+---@field _itembuilds itembuilderblock[]
 local itembuilder = {}
 
 ---@param worldpos userdata
@@ -263,11 +248,23 @@ end
 
 itembuilder.__index = itembuilder
 setmetatable(itembuilder, {
-    ---@param itembuilds itemblock[]
+    ---@param itembuilds itembuilderblock[]
     __call = function(_, itembuilds)
-        ---@param itblds itemblock[]
+        local debugname = nil
+        local log = function(text, pattern)
+            if debugname then
+                log(("[DebugName:%s] %s"):format(debugname, text), pattern)
+            else
+                log(text, pattern)
+            end
+        end
+        ---@param itblds itembuilderblock[]
         local function construct(itblds)
             local _itblds = t_select(itblds, function(itemblock)
+                if type(itemblock) == "string" then
+                    debugname = #itemblock > 0 and itemblock or nil
+                    return true
+                end
                 if itemblock.amount then
                     if type(itemblock.amount) == "number" and itemblock.amount > 0 then
                         itemblock._amount = itemblock.amount
@@ -284,7 +281,7 @@ setmetatable(itembuilder, {
                 end
                 if itemblock.ref then
                     if itemblock.ref._invalid then
-                        log_error(("itemblock is referenced to an invalid itembuilder!"))
+                        log(("itemblock is referenced to an invalid itembuilder!"), 'e')
                         return false
                     end
                     function itemblock:_getamount()
@@ -308,13 +305,12 @@ setmetatable(itembuilder, {
                                 itemblock._pool_weights[i] = tuple[1]
                                 itemblock._pool_objects[i] = tuple[2]
                             else
-                                log_error(("itemblock's pool exists invalid datas!"))
+                                log(("itemblock's pool exists invalid datas!"), 'e')
                                 return false
                             end
                         end
                         for i, object in ipairs(itemblock._pool_objects) do
-                            itemblock._pool_objects[i] = construct(type(next(object)) == "number" and object or
-                                { object })
+                            itemblock._pool_objects[i] = construct(type(next(object)) == "number" and object or { object })
                         end
                         function itemblock:_getamount()
                             if self.amount then
@@ -327,7 +323,7 @@ setmetatable(itembuilder, {
 
                         return true
                     end
-                    log_error(("itemblock's pool is empty!"))
+                    log(("itemblock's pool is empty!"), 'e')
                     return false
                 elseif itemblock.identifier and ItemPrefab.Prefabs.ContainsKey(itemblock.identifier) then
                     itemblock.identifier = Identifier(itemblock.identifier)
@@ -358,8 +354,8 @@ setmetatable(itembuilder, {
                             return amount
                         else
                             -- code never covering here since `self.amount` is defined
-                            log_warn(("Cannot spawn item(%s) since the amount calculated by itub is not more then 0!")
-                                :format(itemblock.identifier.Value))
+                            log(("Cannot spawn item(%s) since the amount calculated by itub is not more then 0!")
+                                :format(itemblock.identifier.Value), 'w')
                             return 0
                         end
                     end
@@ -371,8 +367,8 @@ setmetatable(itembuilder, {
                                 if type(indexer[1]) == "string" and type(indexer[2]) == "string" then
                                     indexer[2] = Identifier(indexer[2])
                                 else
-                                    log_warn(("Field properties has an invalid indexer(table) that its #1 or #2 element type is not string!")
-                                        :format(itemblock.identifier.Value))
+                                    log(("%s got an invalid properties' indexer(table) that its #1 or #2 element type is not string!")
+                                        :format(itemblock.identifier.Value), 'w')
                                     return false
                                 end
                             else
@@ -399,20 +395,19 @@ setmetatable(itembuilder, {
                                         end
                                         itemblock.serverevents = _t
                                     elseif type(v2) == "number" then
-                                        itemblock.serverevents = {
-                                            { itemblock.serverevents[1], itemblock.serverevents[2] } }
+                                        itemblock.serverevents = { { itemblock.serverevents[1], itemblock.serverevents[2] } }
                                     else
-                                        log_error("itemblock's ServerEvents's secondary data is invalid!")
+                                        log("itemblock's ServerEvents's secondary data is invalid!", "e")
                                         itemblock.serverevents = nil
                                     end
                                 end
                             else
-                                log_error("Table(itemblock's ServerEvents)'s length is not more then 0!")
+                                log("Table(itemblock's ServerEvents)'s length is not more then 0!", 'w')
                                 itemblock.serverevents = nil
                             end
                         else
-                            log_error(("Field(itemblock's ServerEvents) has invalid type, expected 'string' or 'table', but got %s")
-                                :format(tostring(itemblock.serverevents)))
+                            log(("Field(itemblock's ServerEvents) has invalid type, expected 'string' or 'table', but got %s")
+                                :format(tostring(itemblock.serverevents)), 'e')
                             itemblock.serverevents = nil
                         end
                     end
@@ -421,8 +416,8 @@ setmetatable(itembuilder, {
                     end
                     return true
                 else
-                    log_error(("Could not found any prefab with given identifier(%s)"):format(itemblock.identifier or
-                        type(nil)))
+                    log(("Could not found any prefab with given identifier(%s)")
+                        :format(itemblock.identifier or type(nil)), 'e')
                     return false
                 end
             end)
@@ -434,7 +429,7 @@ setmetatable(itembuilder, {
 
         if #inst._itembuilds == 0 then
             inst._invalid = true
-            log_error("itembuilds is invalid!")
+            log("itembuilds is invalid!", 'e')
         end
 
         return inst
