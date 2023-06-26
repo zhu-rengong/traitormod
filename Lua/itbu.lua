@@ -18,6 +18,7 @@ end
 ---@field identifier string
 ---@field tags? string
 ---@field quality? integer
+---@field slotindex? integer
 ---@field equip? boolean
 ---@field install? boolean
 ---@field amount? number|{[1]:number,[2]:number}
@@ -70,6 +71,13 @@ local function spawn(itembuilds, context)
             else
                 if context._character == nil then
                     context._character = context.inventory.Owner
+                end
+
+                if itemblock.slotindex then
+                    if not context.inventory.CanBePutInSlot(item, itemblock.slotindex, false)
+                        or not context.inventory.TryPutItem(item, itemblock.slotindex, true, true, context._character, true, false) then
+                        log(("Cannot put %s in %s(slot:%i)"):format(tostring(item), tostring(context.inventory.Owner), itemblock.slotindex), 'e')
+                    end
                 end
 
                 if itemblock.equip then
