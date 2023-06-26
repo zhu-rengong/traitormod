@@ -224,11 +224,17 @@ language.AbyssHelpDead = "看来就这样结束了...."
 language.AmmoDelivery =
 "一批爆炸性电磁枪弹和轨道炮弹已经运到潜艇军械库。"
 language.BeaconPirate =
-"有报告称，一名穿着PUCS服装的臭名昭著的海盗正在威胁这片水域。最近在信标站内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
+"有报告称，一名臭名昭著的穿着PUCS服装的海盗正在威胁这片水域。最近在信标站内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
 language.WreckPirate =
-"有报告称，一名穿着PUCS服装的臭名昭著的海盗正在威胁这片水域，最近在一艘沉船内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
+"有报告称，一名臭名昭著的穿着PUCS服装的海盗正在威胁这片水域，最近在一艘沉船内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
 language.PirateInside = "注意！危险的PUCS海盗已经进入主潜艇！"
 language.PirateKilled = "PUCS海盗已被消灭，船员们获得了%s点数奖励。"
+language.AbyssMadClown =
+"有报告称，一个穿着小丑服的“人—类？”正游荡在主潜艇附近，有不少船员隐约听到了从外部传来的铙钹声，这让他们感到很不安，抓获并羞辱（铐住、脱衣、击毙）小丑将获得 %s 点数的奖励。"
+language.AbyssMadClownRole =
+"你旁边驶过了一艘潜艇，这让你产生了一个愉快的决定。每有一个人持续被摄魂钹影响 %s 秒，你将获得%s点数的奖励（上限：5人）。"
+language.AbyssMadClownSonarMark =
+"打铙钹的神经病"
 
 language.ClownMagic = "你感到一种奇怪的感觉，突然你就到了另一个地方。"
 language.CommunicationsOffline =
