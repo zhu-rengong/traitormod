@@ -31,6 +31,7 @@ local clownitbu = itbu {
             inventoryiconcolor = "0.5,0.5,1.0,0.8",
         },
     },
+    { identifier = "cymbals" },
     {
         identifier = "harpoongun",
         quality = 3,
@@ -71,6 +72,10 @@ local clownitbu = itbu {
                         properties = { indestructible = true }
                     }
                 }
+            },
+            {
+                identifier = "psychosisartifact",
+                properties = { noninteractable = true }
             },
         }
     }

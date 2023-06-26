@@ -1,9 +1,9 @@
----@overload fun(args:{identifier:string,func:function,interval?:integer,ingame?:boolean})
+---@overload fun(args:{identifier:string,[1]:function,interval?:integer,ingame?:boolean})
 local think = {}
 
 think.__index = think
 setmetatable(think, {
-    __call = function(_, args, interval)
+    __call = function(_, args)
         assert(type(args) == "table", ("Missing arguments on think(). Expected #1 to be table, but got %s"):format(type(args)))
         assert(type(args.identifier) == "string", ("Missing arguments on think(). Expected a field(identifier) to be string, but got %s"):format(type(args.identifier)))
         assert(type(args[1]) == "function", ("Missing arguments on think(). Expected args[1] to be function, but got %s"):format(type(args.func)))
