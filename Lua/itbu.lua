@@ -40,8 +40,8 @@ end
 
 ---@param itembuilds itembuilderblock[]
 ---@param context itembuilderspawnctx
-local function spawn(itembuilds, context)
-    local debugname = nil
+---@param debugname? string
+local function spawn(itembuilds, context, debugname)
     local log = function(text, pattern)
         if debugname then
             log(("[DebugName:%s] %s"):format(debugname, text), pattern)
@@ -140,7 +140,7 @@ local function spawn(itembuilds, context)
                     atiteminventory = true,
                     character = context._character,
                     inventory = itemContainer.Inventory
-                })
+                }, debugname)
             else
                 log(("Cannot spawn items in item(%s)'s inventory since it has no inventory!"):format(item.Prefab
                     .Identifier.Value), 'e')
@@ -174,14 +174,14 @@ local function spawn(itembuilds, context)
                 local amount = itemblock:_getamount(context)
                 local num = math.floor(amount)
                 for _ = 1, num, 1 do
-                    spawn(itemblock.ref._itembuilds, context)
+                    spawn(itemblock.ref._itembuilds, context, nil)
                 end
             elseif itemblock.pool then
                 local amount = itemblock:_getamount(context)
                 local num = math.floor(amount)
                 for _ = 1, num, 1 do
                     local object = utils.GetPoolItemBlockRandom(itemblock._pool_objects, itemblock._pool_weights)
-                    spawn(object, context)
+                    spawn(object, context, debugname)
                 end
             else
                 local amount = itemblock:_getamount(context)
