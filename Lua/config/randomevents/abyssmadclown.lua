@@ -11,10 +11,12 @@ event.MaxIntensity = 0.666
 event.ChancePerMinute = 0.15
 event.OnlyOncePerRound = true
 
-event.AmountPoints = 500
-event.AmountPointsClown = 120
-event.AliveInterval = 60
-event.AwardClownMaxTimes = 120
+event.AmountPoints = 600
+event.AmountPointsClownAlive = 80
+event.AmountPointsClownEscape = 400
+event.EscapeDistance = 5000
+event.SurvivalInterval = 30
+event.AwardClownLimit = 5
 
 local clownitbu = itbu { "AbyssMadClown",
     { identifier = "clowncostume", equip = true },
@@ -183,17 +185,17 @@ event.Start = function()
 
     character.SetStun(5)
 
-    local text = string.format(Traitormod.Language.AbyssMadClown, event.AmountPoints)
-    Traitormod.RoundEvents.SendEventMessage(text, "CrewWalletIconLarge")
+    Traitormod.RoundEvents.SendEventMessage(string.format(Traitormod.Language.AbyssMadClownFound, event.AmountPoints), "CrewWalletIconLarge")
 
     Traitormod.GhostRoles.Ask("Abyss Mad Clown", function(client)
         Traitormod.LostLivesThisRound[client.SteamID] = false
         client.SetClientCharacter(character)
-        Traitormod.SendMessageCharacter(character, string.format(Traitormod.Language.AbyssMadClownRole, event.AliveInterval, event.AmountPointsClown, event.AwardClownMaxTimes), "InfoFrameTabButton.Mission")
+        Traitormod.SendMessageCharacter(character, string.format(Traitormod.Language.AbyssMadClownRole, event.SurvivalInterval, event.AmountPointsClownAlive, event.AwardClownLimit), "InfoFrameTabButton.Mission")
     end, character)
 
-    local aliveTimer = 0
-    local awardClownTimes = 0
+    local survivalTime = 0
+    local clownAwardTimes = 0
+    local subBorder = Submarine.MainSub.GetDockedBorders()
     think {
         identifier = "AbyssMadClown.think", interval = 60,
         function()
@@ -220,34 +222,59 @@ event.Start = function()
                     for _, limb in ipairs(character.AnimController.Limbs) do
                         character.TrySeverLimbJoints(limb, 1, 114514, true)
                     end
-                    for item in character.Inventory.AllItemsMod do
-                        if item.Prefab.Identifier.value == "toolbelt" and item.NonInteractable == true then
-                            item.Drop()
-                            Entity.Spawner.AddEntityToRemoveQueue(item)
-                        end
+                end
+                for item in character.Inventory.AllItemsMod do
+                    if item.Prefab.Identifier.value == "toolbelt" and item.NonInteractable == true then
+                        item.Drop()
+                        Entity.Spawner.AddEntityToRemoveQueue(item)
                     end
                 end
                 Traitormod.RoundEvents.SendEventMessage(text, "CrewWalletIconLarge")
                 for _, client in pairs(Client.ClientList) do
                     if client.Character and not client.Character.IsDead and client.Character.TeamID == CharacterTeamType.Team1 then
-                        Traitormod.AwardPoints(client, event.AmountPoints)
-                        Traitormod.SendMessage(client, string.format(Traitormod.Language.ReceivedPoints, event.AmountPoints), "InfoFrameTabButton.Mission")
+                        Traitormod.AwardPoints(client, amountPoints)
+                        Traitormod.SendMessage(client, string.format(Traitormod.Language.ReceivedPoints, amountPoints), "InfoFrameTabButton.Mission")
                     end
                 end
                 event.End()
-            elseif awardClownTimes < event.AwardClownMaxTimes and character.Submarine == Submarine.MainSub then
-                aliveTimer = aliveTimer + 1
-                if aliveTimer % event.AliveInterval == 0 then
+            elseif clownAwardTimes < event.AwardClownLimit then
+                if character.Submarine == Submarine.MainSub then
+                    survivalTime = survivalTime + 1
+                    if survivalTime % event.SurvivalInterval == 0 then
+                        local client = Traitormod.FindClientCharacter(event.Character)
+                        if client then
+                            clownAwardTimes = clownAwardTimes + 1
+                            Traitormod.AwardPoints(client, event.AmountPointsClownAlive)
+                            Traitormod.SendChatMessage(client, string.format(
+                                Traitormod.Language.AbyssMadClownAward,
+                                event.SurvivalInterval, event.AmountPointsClownAlive,
+                                clownAwardTimes, event.AwardClownLimit
+                            ), Color.LightGreen)
+
+                            if clownAwardTimes == event.AwardClownLimit then
+                                Traitormod.RoundEvents.SendEventMessage(Traitormod.Language.AbyssMadClownEscapeToCrews1, "InfoFrameTabButton.Mission", Color.Yellow)
+                                Traitormod.SendMessageCharacter(character, string.format(Traitormod.Language.AbyssMadClownEscapeToClown1, event.EscapeDistance / 100, event.AmountPointsClownEscape), "InfoFrameTabButton.Mission")
+                            end
+                        end
+                    end
+                end
+            else
+                local subPosition = Submarine.MainSub.WorldPosition
+                if not Submarine.RectContains(
+                        Rectangle(
+                            subPosition.X - event.EscapeDistance, subPosition.Y + event.EscapeDistance,
+                            subBorder.Width + event.EscapeDistance * 2, subBorder.Height + event.EscapeDistance * 2), character.WorldPosition) then
                     local client = Traitormod.FindClientCharacter(event.Character)
+                    Traitormod.RoundEvents.SendEventMessage(Traitormod.Language.AbyssMadClownEscapeToCrews2, "InfoFrameTabButton.Mission", Color.Yellow)
                     if client then
-                        awardClownTimes = awardClownTimes + 1
-                        Traitormod.AwardPoints(client, event.AmountPointsClown)
+                        Traitormod.AwardPoints(client, event.AmountPointsClownEscape)
                         Traitormod.SendChatMessage(client, string.format(
-                            Traitormod.Language.AbyssMadClownAward,
-                            event.AliveInterval, event.AmountPointsClown,
-                            awardClownTimes, event.AwardClownMaxTimes
+                            Traitormod.Language.AbyssMadClownEscapeToClown2,
+                            event.AmountPointsClownEscape
                         ), Color.LightGreen)
                     end
+                    Entity.Spawner.AddEntityToRemoveQueue(event.Character)
+                    event.End()
                 end
             end
         end
