@@ -145,12 +145,12 @@ language.TraitorAlive = "你作为叛徒幸存了下来。"
 language.PointsInfo = "你有%s的点数和%s/%s条命。"
 language.TraitorInfo = "你的叛徒几率是%s%%，与其他船员相比。"
 
-language.Points = "（%s点）"
+language.Points = "（%s点数）"
 language.Experience = "（%s经验）"
 
 language.SkillsIncreased = "恭喜你提高了技能。"
-language.PointsAwarded = "你获得了%s点。"
-language.PointsAwardedRound = "本轮你获得了：\n%s点"
+language.PointsAwarded = "你获得了%s的点数。"
+language.PointsAwardedRound = "本轮你获得了：\n%s的点数"
 language.ExperienceAwarded = "你获得了%s经验。"
 
 language.LivesGained = "你获得了%s。你现在有%s/%s条命。"
@@ -224,11 +224,22 @@ language.AbyssHelpDead = "看来就这样结束了...."
 language.AmmoDelivery =
 "一批爆炸性电磁枪弹和轨道炮弹已经运到潜艇军械库。"
 language.BeaconPirate =
-"有报告称，一名穿着PUCS服装的臭名昭著的海盗正在威胁这片水域。最近在信标站内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
+"有报告称，一名臭名昭著的穿着PUCS服装的海盗正在威胁这片水域。最近在信标站内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
 language.WreckPirate =
-"有报告称，一名穿着PUCS服装的臭名昭著的海盗正在威胁这片水域，最近在一艘沉船内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
+"有报告称，一名臭名昭著的穿着PUCS服装的海盗正在威胁这片水域，最近在一艘沉船内发现了这个海盗的存在。消灭该海盗可以获得%s点数的奖励。"
 language.PirateInside = "注意！危险的PUCS海盗已经进入主潜艇！"
 language.PirateKilled = "PUCS海盗已被消灭，船员们获得了%s点数奖励。"
+language.AbyssMadClown =
+"有报告称，一个穿着小丑服的“人—类？”正游荡在主潜艇附近，有不少船员隐约听到了从外部传来的怪声，这让他们感到很不安，抓获并羞辱（铐住、脱衣、击毙）小丑将获得最高 %s 点数的奖励。"
+language.AbyssMadClownKilled =
+"你们杀死了小丑，因此获得 %s 点数的奖励"
+language.AbyssMadClownNakedKilled =
+[[小丑的心灵开始质疑起那些他一直深信不疑的观念，他开始意识到自己在这个疯狂世界中的微不足道，突然之间一道震撼的神秘力量袭来，将小丑撕裂地粉碎……
+成功抓获并羞辱小丑，获得 %s 点数的奖励]]
+language.AbyssMadClownRole =
+"你旁边驶过了一艘潜艇，这让你产生了一个愉快的决定。在主潜艇里每存活 %d 秒，你将获得 %s 点数的奖励（上限：%i次）。"
+language.AbyssMadClownAward =
+"你已在主潜艇上存活 %d 秒，获得 %s 点数的奖励（限次%i/%i）"
 
 language.ClownMagic = "你感到一种奇怪的感觉，突然你就到了另一个地方。"
 language.CommunicationsOffline =

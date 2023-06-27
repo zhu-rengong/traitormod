@@ -1,3 +1,5 @@
+local itbu = require "itbu"
+
 local event = {}
 
 event.Name = "Prisoner"
@@ -38,10 +40,6 @@ event.Start = function ()
     oldClothes.Drop()
     Entity.Spawner.AddEntityToRemoveQueue(oldClothes)
 
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("prisonerclothes"), character.Inventory, nil, nil, function (item)
-        character.Inventory.TryPutItem(item, character.Inventory.FindLimbSlot(InvSlotType.InnerClothes), true, false, character)
-    end)
-
     for key, value in pairs(character.Inventory.AllItemsMod) do
         if value.Prefab.Identifier == "screwdriver" or value.Prefab.Identifier == "wrench" then
             value.Drop()
@@ -49,12 +47,10 @@ event.Start = function ()
         end
     end
 
-    Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.GetItemPrefab("handcuffs"), character.Inventory, nil, nil, function (item)
-        Timer.Wait(function (...)
-            character.Inventory.TryPutItem(item, character.Inventory.FindLimbSlot(InvSlotType.LeftHand), true, true, nil)            
-        end, 1000)
-    end)
-
+    itbu {
+        { identifier = "prisonerclothes", equip = true },
+        { identifier = "handcuffs", equip = true },
+    }
 
     local text = string.format(Traitormod.Language.PrisonerAboard, event.Award)
     Traitormod.RoundEvents.SendEventMessage(text, "GameModeIcon.sandbox", Color.Yellow)
