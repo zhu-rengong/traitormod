@@ -13,13 +13,13 @@ setmetatable(think, {
         local ticks = 0
         local ingame = args.ingame == nil and true or args.ingame
         Hook.Add("think", identifier, function()
-            if ingame and Game.RoundStarted then
+            if Game.RoundStarted then
                 ticks = ticks + 1
                 if ticks == interval then
                     ticks = 0
-                    interval = func()
+                    interval = func() or interval
                 end
-            else
+            elseif ingame then
                 Hook.Remove("think", identifier)
             end
         end)
