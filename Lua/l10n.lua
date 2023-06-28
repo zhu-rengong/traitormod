@@ -47,7 +47,7 @@ setmetatable(l10nmgr, {
             end
         end
 
-        return { value = table.concat(keys, '.'), format = function() return "" end }
+        return { value = table.concat(keys, '.'), format = function(lstr) return lstr.value end }
     end
 })
 
