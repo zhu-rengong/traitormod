@@ -5,6 +5,9 @@ local config = {}
 config.DebugLogs = true
 
 ----- USER FEEDBACK -----
+config.L10N = {
+    dofile(Traitormod.Path .. "/Lua/language/l10n/schinese.lua"),
+}
 config.Languages = {
     dofile(Traitormod.Path .. "/Lua/language/english.lua"), -- If it can't find a specific language key, it will always fallback to the first language on the list.
     dofile(Traitormod.Path .. "/Lua/language/russian.lua"),
@@ -12,7 +15,7 @@ config.Languages = {
 }
 config.Language = "SChinese" -- English, Russian, SChinese
 config.SendWelcomeMessage = true
-config.ChatMessageType = ChatMessageType.Private    -- Error = red | Private = green | Dead = blue | Radio = yellow
+config.ChatMessageType = ChatMessageType.Private -- Error = red | Private = green | Dead = blue | Radio = yellow
 
 config.Extensions = {
     --dofile(Traitormod.Path .. "/Lua/extensions/weaponnerfs.lua"),
@@ -27,17 +30,17 @@ config.ExtensionConfig = {
 ----- GAMEPLAY -----
 config.Codewords = {
     "hull", "tabacco", "nonsense", "fish", "clown", "quartermaster", "fast", "possibility",
-	"thalamus", "hungry", "water", "looks", "renegade", "angry", "green", "sink", "rubber",
-	"mask", "sweet", "ice", "charybdis", "cult", "secret", "frequency",
-	"husk", "rust", "ruins", "red", "boat", "cats", "rats", "blast",
-	"tire", "trunk", "weapons", "threshers", "cargo", "method", "monkey"
+    "thalamus", "hungry", "water", "looks", "renegade", "angry", "green", "sink", "rubber",
+    "mask", "sweet", "ice", "charybdis", "cult", "secret", "frequency",
+    "husk", "rust", "ruins", "red", "boat", "cats", "rats", "blast",
+    "tire", "trunk", "weapons", "threshers", "cargo", "method", "monkey"
 }
 
 config.AmountCodeWords = 2
 
-config.OptionalTraitors = true        -- players can use !toggletraitor
+config.OptionalTraitors = true -- players can use !toggletraitor
 config.RagdollOnDisconnect = false
-config.EnableControlHusk = false     -- EXPERIMENTAL: enable to control husked character after death
+config.EnableControlHusk = false -- EXPERIMENTAL: enable to control husked character after death
 config.DeathLogBook = true
 config.HideCrewList = false -- EXPERIMENTAL
 
@@ -57,16 +60,16 @@ config.MidRoundSpawn = false
 
 ----- POINTS + LIVES -----
 config.StartPoints = 5000 -- new players start with this amount of points
-config.PermanentPoints = true      -- sets if points and lives will be stored in and loaded from a file
+config.PermanentPoints = true -- sets if points and lives will be stored in and loaded from a file
 config.RemotePoints = nil
 config.RemoteServerAuth = {}
-config.PermanentStatistics = true  -- sets if statistics be stored in and loaded from a file
+config.PermanentStatistics = true -- sets if statistics be stored in and loaded from a file
 config.MaxLives = 5
 config.MinRoundTimeToLooseLives = 180
 config.RespawnedPlayersDontLooseLives = true
-config.MaxExperienceFromPoints = 500000     -- if not nil, this amount is the maximum experience players gain from stored points (30k = lvl 10 | 38400 = lvl 12)
+config.MaxExperienceFromPoints = 500000 -- if not nil, this amount is the maximum experience players gain from stored points (30k = lvl 10 | 38400 = lvl 12)
 
-config.FreeExperience = 250         -- temporary experience given every ExperienceTimer seconds
+config.FreeExperience = 250 -- temporary experience given every ExperienceTimer seconds
 config.ExperienceTimer = 120
 
 config.PointsGainedFromSkill = {
@@ -77,26 +80,26 @@ config.PointsGainedFromSkill = {
     helm = 1,
 }
 
-config.PointsLostAfterNoLives = function (x)
+config.PointsLostAfterNoLives = function(x)
     return x * 0.75
 end
 
-config.AmountExperienceWithPoints = function (x)
+config.AmountExperienceWithPoints = function(x)
     return math.min(x, 5000)
 end
 
 -- Give weight based on the logarithm of experience
 -- 100 experience = 4 chance
 -- 1000 experience = 6 chance
-config.AmountWeightWithPoints = function (x)
+config.AmountWeightWithPoints = function(x)
     return math.log(x + 10) -- add 1 because log of 0 is -infinity
 end
 
 ----- GAMEMODE -----
 config.GamemodeConfig = {
     Secret = {
-        PointshopCategories = {"clown", "traitor", "cultist", "deathspawn", "maintenance", "materials", "medical", "ores", "other", "security", "wiring", "ships"},
-        EndOnComplete = true,           -- end round everyone but traitors are dead
+        PointshopCategories = { "clown", "traitor", "cultist", "deathspawn", "maintenance", "materials", "medical", "ores", "other", "security", "wiring", "ships" },
+        EndOnComplete = true, -- end round everyone but traitors are dead
         EnableRandomEvents = true,
         EndGameDelaySeconds = 15,
 
@@ -132,13 +135,13 @@ config.GamemodeConfig = {
             Clown = 50,
         },
 
-        AmountTraitors = function (amountPlayers)
+        AmountTraitors = function(amountPlayers)
             config.TestMode = false
             if amountPlayers > 18 and math.random() < 0.25 then return 4 end
             if amountPlayers > 12 then return 3 end
-            if amountPlayers > 7 then return 2 end            
+            if amountPlayers > 7 then return 2 end
             if amountPlayers > 3 then return 1 end
-            if amountPlayers == 1 then 
+            if amountPlayers == 1 then
                 Traitormod.SendMessageEveryone(Traitormod.Language.TestingMode)
                 config.TestMode = true
                 return 1
@@ -149,7 +152,7 @@ config.GamemodeConfig = {
 
         -- 0 = 0% chance
         -- 1 = 100% chance
-        TraitorFilter = function (client)
+        TraitorFilter = function(client)
             if client.Character.TeamID ~= CharacterTeamType.Team1 then return 0 end
             if not client.Character.IsHuman then return 0 end
             if client.Character.HasJob("captain") then return 0 end
@@ -161,7 +164,7 @@ config.GamemodeConfig = {
     },
 
     PvP = {
-        PointshopCategories = {"clown", "traitor", "cultist", "deathspawn", "maintenance", "materials", "medical", "ores", "other", "security", "wiring", "ships"},
+        PointshopCategories = { "clown", "traitor", "cultist", "deathspawn", "maintenance", "materials", "medical", "ores", "other", "security", "wiring", "ships" },
         EnableRandomEvents = false, -- most events are coded to only affect the main submarine
         WinningPoints = 1000,
         WinningDeadPoints = 500,
@@ -169,11 +172,11 @@ config.GamemodeConfig = {
         ShowSonar = true,
         IdCardAllAccess = true,
         CrossTeamCommunication = true,
-        BannedItems = {"coilgunammoboxexplosive", "nuclearshell"}
+        BannedItems = { "coilgunammoboxexplosive", "nuclearshell" }
     },
 
     AttackDefend = {
-        PointshopCategories = {"maintenance", "materials", "medical", "ores", "other", "wiring"},
+        PointshopCategories = { "maintenance", "materials", "medical", "ores", "other", "wiring" },
         DefendTime = 15,
         DefendRespawn = 60,
         AttackRespawn = 70,
@@ -184,26 +187,26 @@ config.GamemodeConfig = {
 config.RoleConfig = {
     Crew = {
         AvailableObjectives = {
-            ["captain"] = {"KillLargeMonsters", "FinishRoundFast", "SecurityTeamSurvival"},
-            ["engineer"] = {"RepairElectrical", "RepairMechanical", "KillSmallMonsters"},
-            ["mechanic"] = {"RepairMechanical", "RepairHull", "KillSmallMonsters"},
-            ["securityofficer"] = {"KillLargeMonsters", "KillSmallMonsters"},
-            ["medicaldoctor"] = {"HealCharacters", "KillSmallMonsters"},
-            ["assistant"] = {"RepairElectrical", "RepairMechanical", "KillPets"},
+            ["captain"] = { "KillLargeMonsters", "FinishRoundFast", "SecurityTeamSurvival" },
+            ["engineer"] = { "RepairElectrical", "RepairMechanical", "KillSmallMonsters" },
+            ["mechanic"] = { "RepairMechanical", "RepairHull", "KillSmallMonsters" },
+            ["securityofficer"] = { "KillLargeMonsters", "KillSmallMonsters" },
+            ["medicaldoctor"] = { "HealCharacters", "KillSmallMonsters" },
+            ["assistant"] = { "RepairElectrical", "RepairMechanical", "KillPets" },
         }
     },
 
     Cultist = {
-        SubObjectives = {"Assassinate", "Kidnap", "TurnHusk", "DestroyCaly"},
+        SubObjectives = { "Assassinate", "Kidnap", "TurnHusk", "DestroyCaly" },
         MinSubObjectives = 2,
         MaxSubObjectives = 3,
 
         NextObjectiveDelayMin = 30,
         NextObjectiveDelayMax = 60,
 
-        TraitorBroadcast = true,           -- traitors can broadcast to other traitors using !tc
-        TraitorBroadcastHearable = false,  -- if true, !tc will be hearable in the vicinity via local chat
-        TraitorDm = true,                  -- traitors can send direct messages to other players using !tdm
+        TraitorBroadcast = true, -- traitors can broadcast to other traitors using !tc
+        TraitorBroadcastHearable = false, -- if true, !tc will be hearable in the vicinity via local chat
+        TraitorDm = true, -- traitors can send direct messages to other players using !tdm
 
         -- Names, None
         TraitorMethodCommunication = "Names",
@@ -217,37 +220,37 @@ config.RoleConfig = {
     },
 
     Traitor = {
-        SubObjectives = {"StealCaptainID", "Survive", "Kidnap", "PoisonCaptain"},
+        SubObjectives = { "StealCaptainID", "Survive", "Kidnap", "PoisonCaptain" },
         MinSubObjectives = 2,
         MaxSubObjectives = 3,
 
         NextObjectiveDelayMin = 30,
         NextObjectiveDelayMax = 60,
 
-        TraitorBroadcast = true,           -- traitors can broadcast to other traitors using !tc
-        TraitorBroadcastHearable = false,  -- if true, !tc will be hearable in the vicinity via local chat
-        TraitorDm = true,                  -- traitors can send direct messages to other players using !tdm
+        TraitorBroadcast = true, -- traitors can broadcast to other traitors using !tc
+        TraitorBroadcastHearable = false, -- if true, !tc will be hearable in the vicinity via local chat
+        TraitorDm = true, -- traitors can send direct messages to other players using !tdm
 
         -- Names, Codewords, None
         TraitorMethodCommunication = "Names",
 
         SelectBotsAsTargets = true,
         SelectPiratesAsTargets = false,
-        SelectUniqueTargets = true,     -- every traitor target can only be chosen once per traitor (respawn+false -> no end)
+        SelectUniqueTargets = true, -- every traitor target can only be chosen once per traitor (respawn+false -> no end)
         PointsPerAssassination = 100,
     },
 
     Clown = {
-        SubObjectives = {"BananaSlip", "SuffocateCrew", "AssassinateDrunk", "GrowMudraptors", "Survive"},
+        SubObjectives = { "BananaSlip", "SuffocateCrew", "AssassinateDrunk", "GrowMudraptors", "Survive" },
         MinSubObjectives = 3,
         MaxSubObjectives = 3,
 
         NextObjectiveDelayMin = 30,
         NextObjectiveDelayMax = 60,
 
-        TraitorBroadcast = true,           -- traitors can broadcast to other traitors using !tc
-        TraitorBroadcastHearable = false,  -- if true, !tc will be hearable in the vicinity via local chat
-        TraitorDm = true,                  -- traitors can send direct messages to other players using !tdm
+        TraitorBroadcast = true, -- traitors can broadcast to other traitors using !tc
+        TraitorBroadcastHearable = false, -- if true, !tc will be hearable in the vicinity via local chat
+        TraitorDm = true, -- traitors can send direct messages to other players using !tdm
 
         -- Names, None
         TraitorMethodCommunication = "Names",

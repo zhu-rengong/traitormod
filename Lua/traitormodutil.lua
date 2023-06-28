@@ -9,6 +9,7 @@ loadfile(Traitormod.Path .. "/Lua/config/config.lua")(Traitormod.Config)
 
 Traitormod.Patching = loadfile(Traitormod.Path .. "/Lua/xmlpatching.lua")(Traitormod.Path)
 
+Traitormod.L10N = Traitormod.Config.L10N
 Traitormod.Languages = Traitormod.Config.Languages
 
 Traitormod.DefaultLanguage = Traitormod.Languages[1]
@@ -28,9 +29,16 @@ for key, value in pairs(Traitormod.Languages) do
     end
 end
 
+for _, value in pairs(Traitormod.L10N) do
+    if Traitormod.Language.Name == value[1] then
+        require "l10n".setlang(value)
+        break
+    end
+end
+
 local json = dofile(Traitormod.Path .. "/Lua/json.lua")
 
-Traitormod.LoadRemoteData = function (client, loaded)
+Traitormod.LoadRemoteData = function(client, loaded)
     local data = {
         Account = client.SteamID,
     }
@@ -39,7 +47,7 @@ Traitormod.LoadRemoteData = function (client, loaded)
         data[key] = value
     end
 
-    Networking.HttpPost(Traitormod.Config.RemotePoints, function (res) 
+    Networking.HttpPost(Traitormod.Config.RemotePoints, function(res)
         local success, result = pcall(json.decode, res)
         if not success then
             Traitormod.Log("Failed to retrieve points from server: " .. res)
@@ -56,7 +64,7 @@ Traitormod.LoadRemoteData = function (client, loaded)
     end, json.encode(data))
 end
 
-Traitormod.PublishRemoteData = function (client)
+Traitormod.PublishRemoteData = function(client)
     local data = {
         Account = client.SteamID,
         Points = Traitormod.GetData(client, "Points")
@@ -70,15 +78,15 @@ Traitormod.PublishRemoteData = function (client)
         data[key] = value
     end
 
-    Networking.HttpPost(Traitormod.Config.RemotePoints, function (res) end, json.encode(data))
+    Networking.HttpPost(Traitormod.Config.RemotePoints, function(res) end, json.encode(data))
 end
 
-Traitormod.NewClientData = function (client)
+Traitormod.NewClientData = function(client)
     Traitormod.ClientData[client.SteamID] = {}
     Traitormod.ClientData[client.SteamID]["Points"] = Traitormod.Config.StartPoints
 end
 
-Traitormod.LoadData = function ()
+Traitormod.LoadData = function()
     if Traitormod.Config.PermanentPoints then
         Traitormod.ClientData = json.decode(File.Read(Traitormod.Path .. "/Lua/data.json")) or {}
     else
@@ -86,30 +94,30 @@ Traitormod.LoadData = function ()
     end
 end
 
-Traitormod.SaveData = function ()
+Traitormod.SaveData = function()
     if Traitormod.Config.PermanentPoints then
         File.Write(Traitormod.Path .. "/Lua/data.json", json.encode(Traitormod.ClientData))
     end
 end
 
-Traitormod.SetMasterData = function (name, value)
+Traitormod.SetMasterData = function(name, value)
     Traitormod.ClientData[name] = value
 end
 
-Traitormod.GetMasterData = function (name)
+Traitormod.GetMasterData = function(name)
     return Traitormod.ClientData[name]
 end
 
-Traitormod.SetData = function (client, name, amount)
-    if Traitormod.ClientData[client.SteamID] == nil then 
+Traitormod.SetData = function(client, name, amount)
+    if Traitormod.ClientData[client.SteamID] == nil then
         Traitormod.NewClientData(client)
     end
 
     Traitormod.ClientData[client.SteamID][name] = amount
 end
 
-Traitormod.GetData = function (client, name)
-    if Traitormod.ClientData[client.SteamID] == nil then 
+Traitormod.GetData = function(client, name)
+    if Traitormod.ClientData[client.SteamID] == nil then
         Traitormod.NewClientData(client)
     end
 
@@ -120,7 +128,7 @@ Traitormod.AddData = function(client, name, amount)
     Traitormod.SetData(client, name, math.max((Traitormod.GetData(client, name) or 0) + amount, 0))
 end
 
-Traitormod.FindClient = function (name)
+Traitormod.FindClient = function(name)
     for key, value in pairs(Client.ClientList) do
         if value.Name == name or tostring(value.SteamID) == name then
             return value
@@ -128,7 +136,7 @@ Traitormod.FindClient = function (name)
     end
 end
 
-Traitormod.FindClientCharacter = function (character)
+Traitormod.FindClientCharacter = function(character)
     for key, value in pairs(Client.ClientList) do
         if character == value.Character then return value end
     end
@@ -136,7 +144,7 @@ Traitormod.FindClientCharacter = function (character)
     return nil
 end
 
-Traitormod.SendMessageEveryone = function (text, popup)
+Traitormod.SendMessageEveryone = function(text, popup)
     if popup then
         Game.SendMessage(text, ChatMessageType.MessageBox)
     else
@@ -144,7 +152,7 @@ Traitormod.SendMessageEveryone = function (text, popup)
     end
 end
 
-Traitormod.SendMessage = function (client, text, icon)
+Traitormod.SendMessage = function(client, text, icon)
     if not client or not text or text == "" then
         return
     end
@@ -159,7 +167,7 @@ Traitormod.SendMessage = function (client, text, icon)
     Game.SendDirectChatMessage("", text, nil, Traitormod.Config.ChatMessageType, client)
 end
 
-Traitormod.SendChatMessage = function (client, text, color)
+Traitormod.SendChatMessage = function(client, text, color)
     if not client or not text or text == "" then
         return
     end
@@ -174,9 +182,9 @@ Traitormod.SendChatMessage = function (client, text, color)
     Game.SendDirectChatMessage(chatMessage, client)
 end
 
-Traitormod.SendMessageCharacter = function (character, text, icon)
+Traitormod.SendMessageCharacter = function(character, text, icon)
     if character.IsBot then return end
-    
+
     local client = Traitormod.FindClientCharacter(character)
 
     if client == nil then
@@ -187,14 +195,14 @@ Traitormod.SendMessageCharacter = function (character, text, icon)
     Traitormod.SendMessage(client, text, icon)
 end
 
-Traitormod.MissionIdentifier =  "easterbunny" -- can be any defined Traitor mission id in vanilla xml, mainly used for icon
-Traitormod.SendTraitorMessageBox = function (client, text, icon)
+Traitormod.MissionIdentifier = "easterbunny" -- can be any defined Traitor mission id in vanilla xml, mainly used for icon
+Traitormod.SendTraitorMessageBox = function(client, text, icon)
     Game.SendTraitorMessage(client, text, icon or Traitormod.MissionIdentifier, TraitorMessageType.ServerMessageBox);
     Game.SendDirectChatMessage("", text, nil, Traitormod.Config.ChatMessageType, client)
 end
 
 -- set character traitor to enable sabotage, set mission objective text then sync with session
-Traitormod.UpdateVanillaTraitor = function (client, enabled, objectiveSummary, missionIdentifier)
+Traitormod.UpdateVanillaTraitor = function(client, enabled, objectiveSummary, missionIdentifier)
     if not client or not client.Character then
         Traitormod.Error("UpdateVanillaTraitor failed! Client or Character was null!")
         return
@@ -213,10 +221,10 @@ Traitormod.SendObjectiveCompleted = function(client, objectiveText, points, live
         livesText = ""
     end
 
-    Traitormod.SendMessage(client, 
-    string.format(Traitormod.Language.ObjectiveCompleted, objectiveText) .. " \n\n" .. 
-    string.format(Traitormod.Language.PointsAwarded, points) .. livesText
-    , "MissionCompletedIcon") --InfoFrameTabButton.Mission
+    Traitormod.SendMessage(client,
+        string.format(Traitormod.Language.ObjectiveCompleted, objectiveText) .. " \n\n" ..
+        string.format(Traitormod.Language.PointsAwarded, points) .. livesText
+        , "MissionCompletedIcon") --InfoFrameTabButton.Mission
 
     local role = Traitormod.RoleManager.GetRole(client.Character)
 
@@ -226,8 +234,8 @@ Traitormod.SendObjectiveCompleted = function(client, objectiveText, points, live
 end
 
 Traitormod.SendObjectiveFailed = function(client, objectiveText)
-    Traitormod.SendMessage(client, 
-    string.format(Traitormod.Language.ObjectiveFailed, objectiveText), "MissionFailedIcon")
+    Traitormod.SendMessage(client,
+        string.format(Traitormod.Language.ObjectiveFailed, objectiveText), "MissionFailedIcon")
 
     local role = Traitormod.RoleManager.GetRole(client.Character)
 
@@ -236,26 +244,26 @@ Traitormod.SendObjectiveFailed = function(client, objectiveText)
     end
 end
 
-Traitormod.SelectCodeWords = function ()
+Traitormod.SelectCodeWords = function()
     local copied = {}
     for key, value in pairs(Traitormod.Config.Codewords) do
         copied[key] = value
     end
 
     local selected = {}
-    for i=1, Traitormod.Config.AmountCodeWords, 1 do
+    for i = 1, Traitormod.Config.AmountCodeWords, 1 do
         table.insert(selected, copied[Random.Range(1, #copied + 1)])
     end
 
     local selected2 = {}
-    for i=1, Traitormod.Config.AmountCodeWords, 1 do
+    for i = 1, Traitormod.Config.AmountCodeWords, 1 do
         table.insert(selected2, copied[Random.Range(1, #copied + 1)])
     end
 
-    return {selected, selected2}
+    return { selected, selected2 }
 end
 
-Traitormod.ParseCommand = function (text)
+Traitormod.ParseCommand = function(text)
     local result = {}
 
     if text == nil then return result end
@@ -272,49 +280,49 @@ Traitormod.ParseCommand = function (text)
         elseif buf then
             buf = buf .. ' ' .. str
         end
-        if not buf then result[#result + 1] = str:gsub(spat,""):gsub(epat,"") end
+        if not buf then result[#result + 1] = str:gsub(spat, ""):gsub(epat, "") end
     end
 
     return result
 end
 
-Traitormod.AddCommand = function (commandName, callback)
+Traitormod.AddCommand = function(commandName, callback)
     if type(commandName) == "table" then
         for command in commandName do
             Traitormod.AddCommand(command, callback)
         end
     else
         local cmd = {}
-    
+
         Traitormod.Commands[string.lower(commandName)] = cmd
         cmd.Callback = callback;
     end
 end
 
-Traitormod.RemoveCommand = function (commandName)
+Traitormod.RemoveCommand = function(commandName)
     Traitormod.Commands[commandName] = nil
 end
 
 -- type: 6 = Server message, 7 = Console usage, 9 error
-Traitormod.Log = function (message)
+Traitormod.Log = function(message)
     Game.Log("[TraitorMod] " .. message, 6)
 end
 
-Traitormod.Debug = function (message)
+Traitormod.Debug = function(message)
     if Traitormod.Config.DebugLogs then
         Game.Log("[TraitorMod-Debug] " .. message, 6)
     end
 end
 
-Traitormod.Error = function (message, ...)
+Traitormod.Error = function(message, ...)
     Game.Log("[TraitorMod-Error] " .. message, 9)
-    
+
     if Traitormod.Config.DebugLogs then
         printerror(string.format(message, ...))
     end
 end
 
-Traitormod.AllCrewMissionsCompleted = function (missions)
+Traitormod.AllCrewMissionsCompleted = function(missions)
     if not missions then
         if Game.GameSession == nil or Game.GameSession.Missions == nil then return end
         missions = Game.GameSession.Missions
@@ -327,16 +335,16 @@ Traitormod.AllCrewMissionsCompleted = function (missions)
     return true
 end
 
-Traitormod.LoadExperience = function (client)
+Traitormod.LoadExperience = function(client)
     if client == nil then
         Traitormod.Error("Loading experience failed! Client was nil")
         return
-    elseif not client.Character or not client.Character.Info then 
+    elseif not client.Character or not client.Character.Info then
         Traitormod.Error("Loading experience failed! Client.Character or .Info was null! " .. Traitormod.ClientLogName(client))
-        return 
+        return
     end
     local amount = Traitormod.Config.AmountExperienceWithPoints(Traitormod.GetData(client, "Points") or 0)
-    local max = Traitormod.Config.MaxExperienceFromPoints or 2000000000     -- must be int32
+    local max = Traitormod.Config.MaxExperienceFromPoints or 2000000000 -- must be int32
 
     if amount > max then
         amount = max
@@ -346,7 +354,7 @@ Traitormod.LoadExperience = function (client)
     client.Character.Info.SetExperience(amount)
 end
 
-Traitormod.GiveExperience = function (character, amount, isMissionXP)
+Traitormod.GiveExperience = function(character, amount, isMissionXP)
     if character == nil or character.Info == nil or character.Info.GiveExperience == nil or character.IsHuman == false or amount == nil or amount == 0 then
         return false
     end
@@ -355,7 +363,7 @@ Traitormod.GiveExperience = function (character, amount, isMissionXP)
     return true
 end
 
-Traitormod.AwardPoints = function (client, amount, isMissionXP)
+Traitormod.AwardPoints = function(client, amount, isMissionXP)
     if not Traitormod.Config.TestMode then
         Traitormod.AddData(client, "Points", amount)
         Traitormod.Stats.AddClientStat("PointsGained", client, amount)
@@ -368,13 +376,13 @@ Traitormod.AwardPoints = function (client, amount, isMissionXP)
     return amount
 end
 
-Traitormod.AdjustLives = function (client, amount)
+Traitormod.AdjustLives = function(client, amount)
     if not amount or amount == 0 then
         return
     end
 
     local oldLives = Traitormod.GetData(client, "Lives") or Traitormod.Config.MaxLives
-    local newLives =  oldLives + amount
+    local newLives = oldLives + amount
 
     if (newLives or 0) > Traitormod.Config.MaxLives then
         -- if gained more lives than maxLives, reset to maxLives
@@ -402,8 +410,8 @@ Traitormod.AdjustLives = function (client, amount)
 
     if (newLives or 0) <= 0 then
         -- if no lives left, reduce amount of points, reset to maxLives
-        Traitormod.Log("Player ".. client.Name .." lost all lives. Reducing points...")
-        if not Traitormod.Config.TestMode then  
+        Traitormod.Log("Player " .. client.Name .. " lost all lives. Reducing points...")
+        if not Traitormod.Config.TestMode then
             local oldAmount = Traitormod.GetData(client, "Points") or 0
             local newAmount = Traitormod.Config.PointsLostAfterNoLives(oldAmount)
             Traitormod.SetData(client, "Points", newAmount)
@@ -414,13 +422,13 @@ Traitormod.AdjustLives = function (client, amount)
         newLives = Traitormod.Config.MaxLives
         lifeAdjustMessage = string.format(Traitormod.Language.NoLives, newLives)
     end
-    
+
     Traitormod.Log("Adjusting lives of player " .. Traitormod.ClientLogName(client) .. " by " .. amount .. ". New value: " .. newLives)
     Traitormod.SetData(client, "Lives", newLives)
     return lifeAdjustMessage, icon
 end
 
-Traitormod.SendTip = function ()
+Traitormod.SendTip = function()
     local tip = Traitormod.Language.Tips[math.random(1, #Traitormod.Language.Tips)]
 
     for index, value in pairs(Client.ClientList) do
@@ -437,9 +445,9 @@ Traitormod.GetDataInfo = function(client, showWeights)
                 maxPoints = maxPoints + (Traitormod.GetData(value, "Weight") or 0)
             end
         end
-    
+
         local percentage = (Traitormod.GetData(client, "Weight") or 0) / maxPoints * 100
-    
+
         if percentage ~= percentage then
             percentage = 100 -- percentage is NaN, set it to 100%
         end
@@ -460,10 +468,10 @@ Traitormod.ClientLogName = function(client, name)
 end
 
 Traitormod.InsertString = function(str1, str2, pos)
-    return str1:sub(1,pos)..str2..str1:sub(pos+1)
+    return str1:sub(1, pos) .. str2 .. str1:sub(pos + 1)
 end
 
-Traitormod.HighlightClientNames = function (text, color)
+Traitormod.HighlightClientNames = function(text, color)
     for key, value in pairs(Client.ClientList) do
         local name = value.Name
 
@@ -502,7 +510,7 @@ Traitormod.EndReached = function(character, distance)
     end
 
     local characterInsideOutpost = not character.IsDead and character.Submarine == Level.Loaded.EndOutpost
-    -- character is inside or docked to outpost 
+    -- character is inside or docked to outpost
     return characterInsideOutpost or Vector2.Distance(character.WorldPosition, Level.Loaded.EndPosition) < distance
 end
 
@@ -512,7 +520,7 @@ Traitormod.SendWelcome = function(client)
     end
 end
 
-Traitormod.ParseSubmarineConfig = function (description)
+Traitormod.ParseSubmarineConfig = function(description)
     local startIndex, endIndex = string.find(description, "%[traitormod%]")
 
     if startIndex == nil then return {} end

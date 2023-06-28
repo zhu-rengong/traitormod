@@ -1,3 +1,4 @@
+local l10nmgr = require "l10n"
 local itbu = require "itbu"
 local think = require "think"
 
@@ -134,7 +135,7 @@ event.Start = function()
     local spawnPosition = closestPos.ToVector2()
 
     local info = CharacterInfo(Identifier("human"))
-    info.Name = "Clown" .. info.Name
+    info.Name = "Clown " .. info.Name
     info.Job = Job(JobPrefab.Get("mechanic"))
 
     local character = Character.Create(info, spawnPosition, info.Name, 0, false, true)
@@ -185,12 +186,12 @@ event.Start = function()
 
     character.SetStun(5)
 
-    Traitormod.RoundEvents.SendEventMessage(string.format(Traitormod.Language.AbyssMadClownFound, event.AmountPoints), "CrewWalletIconLarge")
+    Traitormod.RoundEvents.SendEventMessage(l10nmgr { "RandomEvents", "AbyssMadClown", "Start" }:format(event.AmountPoints), "CrewWalletIconLarge")
 
     Traitormod.GhostRoles.Ask("Abyss Mad Clown", function(client)
         Traitormod.LostLivesThisRound[client.SteamID] = false
         client.SetClientCharacter(character)
-        Traitormod.SendMessageCharacter(character, string.format(Traitormod.Language.AbyssMadClownRole, event.SurvivalInterval, event.AmountPointsClownAlive, event.AwardClownLimit), "InfoFrameTabButton.Mission")
+        Traitormod.SendMessageCharacter(character, l10nmgr { "RandomEvents", "AbyssMadClown", "Role" }:format(event.SurvivalInterval, event.AmountPointsClownAlive, event.AwardClownLimit), "InfoFrameTabButton.Mission")
     end, character)
 
     local survivalTime = 0
@@ -210,8 +211,7 @@ event.Start = function()
                         end
                     end
                 end
-                local amountPoints = isHandcuffedAndNaked and event.AmountPoints or event.AmountPoints / 2
-                local text = string.format(isHandcuffedAndNaked and Traitormod.Language.AbyssMadClownNakedKilled or Traitormod.Language.AbyssMadClownKilled, amountPoints)
+                local amountPoints = isHandcuffedAndNaked and event.AmountPoints or event.AmountPoints / 3
                 if isHandcuffedAndNaked then
                     itbu {
                         {
@@ -222,6 +222,9 @@ event.Start = function()
                     for _, limb in ipairs(character.AnimController.Limbs) do
                         character.TrySeverLimbJoints(limb, 1, 114514, true)
                     end
+                    Traitormod.RoundEvents.SendEventMessage(l10nmgr { "RandomEvents", "AbyssMadClown", "KilledCruelly" }:format(amountPoints), "CrewWalletIconLarge")
+                else
+                    Traitormod.RoundEvents.SendEventMessage(l10nmgr { "RandomEvents", "AbyssMadClown", "KilledNormally" }:format(amountPoints), "CrewWalletIconLarge")
                 end
                 for item in character.Inventory.AllItemsMod do
                     if item.Prefab.Identifier.value == "toolbelt" and item.NonInteractable == true then
@@ -229,7 +232,6 @@ event.Start = function()
                         Entity.Spawner.AddEntityToRemoveQueue(item)
                     end
                 end
-                Traitormod.RoundEvents.SendEventMessage(text, "CrewWalletIconLarge")
                 for _, client in pairs(Client.ClientList) do
                     if client.Character and not client.Character.IsDead and client.Character.TeamID == CharacterTeamType.Team1 then
                         Traitormod.AwardPoints(client, amountPoints)
@@ -245,15 +247,18 @@ event.Start = function()
                         if client then
                             clownAwardTimes = clownAwardTimes + 1
                             Traitormod.AwardPoints(client, event.AmountPointsClownAlive)
-                            Traitormod.SendChatMessage(client, string.format(
-                                Traitormod.Language.AbyssMadClownAward,
-                                event.SurvivalInterval, event.AmountPointsClownAlive,
-                                clownAwardTimes, event.AwardClownLimit
-                            ), Color.LightGreen)
+                            Traitormod.SendChatMessage(client,
+                                l10nmgr { "RandomEvents", "AbyssMadClown", "PointsAwardedPerSurvivalInterval" }
+                                :format(
+                                    event.SurvivalInterval, event.AmountPointsClownAlive,
+                                    clownAwardTimes, event.AwardClownLimit
+                                ),
+                                Color.LightGreen
+                            )
 
                             if clownAwardTimes == event.AwardClownLimit then
-                                Traitormod.RoundEvents.SendEventMessage(Traitormod.Language.AbyssMadClownEscapeToCrews1, "InfoFrameTabButton.Mission", Color.Yellow)
-                                Traitormod.SendMessageCharacter(character, string.format(Traitormod.Language.AbyssMadClownEscapeToClown1, event.EscapeDistance / 100, event.AmountPointsClownEscape), "InfoFrameTabButton.Mission")
+                                Traitormod.RoundEvents.SendEventMessage(l10nmgr { "RandomEvents", "AbyssMadClown", "Escape2Crews" }.value, "InfoFrameTabButton.Mission", Color.Yellow)
+                                Traitormod.SendMessageCharacter(character, l10nmgr { "RandomEvents", "AbyssMadClown", "Escape2Clown" }:format(event.EscapeDistance / 100, event.AmountPointsClownEscape), "InfoFrameTabButton.Mission")
                             end
                         end
                     end
@@ -265,13 +270,10 @@ event.Start = function()
                             subPosition.X - event.EscapeDistance, subPosition.Y + event.EscapeDistance,
                             subBorder.Width + event.EscapeDistance * 2, subBorder.Height + event.EscapeDistance * 2), character.WorldPosition) then
                     local client = Traitormod.FindClientCharacter(event.Character)
-                    Traitormod.RoundEvents.SendEventMessage(Traitormod.Language.AbyssMadClownEscapeToCrews2, "InfoFrameTabButton.Mission", Color.Yellow)
+                    Traitormod.RoundEvents.SendEventMessage(l10nmgr { "RandomEvents", "AbyssMadClown", "EscapeComplete2Crews" }.value, "InfoFrameTabButton.Mission", Color.Yellow)
                     if client then
                         Traitormod.AwardPoints(client, event.AmountPointsClownEscape)
-                        Traitormod.SendChatMessage(client, string.format(
-                            Traitormod.Language.AbyssMadClownEscapeToClown2,
-                            event.AmountPointsClownEscape
-                        ), Color.LightGreen)
+                        Traitormod.SendChatMessage(client, l10nmgr { "RandomEvents", "AbyssMadClown", "EscapeComplete2Clown" }:format(event.AmountPointsClownEscape), Color.LightGreen)
                     end
                     Entity.Spawner.AddEntityToRemoveQueue(event.Character)
                     event.End()
