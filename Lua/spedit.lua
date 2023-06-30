@@ -70,7 +70,6 @@ function spedit:apply(item, _log)
                     end
                 end
             else
-                print("NO!!!!!!!!!!!!!!!,", item)
                 if entity == item then
                     _log(("Could not find any SP with the given name(%s) in item(%s)!"):format(
                         propertyName.Value, item.Prefab.Identifier.Value), 'e')
