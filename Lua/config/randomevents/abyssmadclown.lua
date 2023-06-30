@@ -1,5 +1,6 @@
 local l10nmgr = require "l10n"
 local itbu = require "itbu"
+local spedit = require "spedit"
 local think = require "think"
 
 local event = {}
@@ -154,19 +155,19 @@ event.Start = function()
             Entity.Spawner.AddEntityToRemoveQueue(item)
         end
     end
+
     local idCard = character.Inventory.GetItemInLimbSlot(InvSlotType.Card)
     if idCard then
-        idCard.NonPlayerTeamInteractable = true
-        local prop = idCard.SerializableProperties[Identifier("NonPlayerTeamInteractable")]
-        Networking.CreateEntityEvent(idCard, Item.ChangePropertyEventData(prop, idCard))
+        spedit {
+            nonplayerteaminteractable = true
+        }:apply(idCard)
     end
 
     local headset = character.Inventory.GetItemInLimbSlot(InvSlotType.Headset)
     if headset then
-        local wifi = headset.GetComponentString("WifiComponent")
-        if wifi then
-            wifi.TeamID = CharacterTeamType.Team1
-        end
+        spedit {
+            [{ "WifiComponent", "TeamID" }] = CharacterTeamType.Team1
+        }:apply(headset)
     end
 
     clownitbu:give(character)

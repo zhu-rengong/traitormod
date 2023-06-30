@@ -1,5 +1,6 @@
-local log = require("logger")("ItemBuilder")
+local log = require "logger" ("ItemBuilder")
 local utils = require "ItemBuilder.Utils"
+local spedit = require "spedit"
 
 local function t_select(t, f)
     local _t = {}
@@ -13,7 +14,9 @@ end
 ---@field _pool_objects? (itembuilderblock|itembuilderblock[])[]
 ---@field _amount? number
 ---@field _stacks? number
----@field _getamount? fun(self:itembuilderblock, context:itembuilderspawnctx)
+---@field _getamount? fun(self:itembuilderblock, context:itembuilderspawnctx):number
+---@field _getrepetitions? fun(self:itembuilderblock, context:itembuilderspawnctx):integer
+---@field _spedit? spedit
 ---@field ref itembuilder
 ---@field identifier string
 ---@field tags? string
@@ -86,50 +89,8 @@ local function spawn(itembuilds, context, debugname)
             end
         end
 
-        if itemblock.properties then
-            for indexer, value in pairs(itemblock.properties) do
-                local propertyName
-                local entity
-                if type(indexer) ~= "table" then
-                    propertyName = indexer
-                    entity = item
-                else
-                    propertyName = indexer[2]
-                    indexer[3] = indexer[3] or 1
-                    entity = utils.GetComponent(item, indexer[1], indexer[3])
-                end
-
-                if entity then
-                    local serializableProperty = entity.SerializableProperties[propertyName]
-                    if serializableProperty then
-                        if utils.TrySetValue(serializableProperty, entity, value) then
-                            if utils.IsEditable(serializableProperty) then
-                                Networking.CreateEntityEvent(item,
-                                    Item.ChangePropertyEventData(serializableProperty, entity))
-                            end
-                        else
-                            if entity == item then
-                                log(("Failed to set SP(%s) to '%s' for item(%s)!"):format(propertyName.Value,
-                                    tostring(value), item.Prefab.Identifier.Value), 'e')
-                            else
-                                log(("Failed to set SP(%s) to '%s' for '%s->%s[%i]'!"):format(propertyName.Value,
-                                    tostring(value), item.Prefab.Identifier.Value, indexer[1], indexer[3]), 'e')
-                            end
-                        end
-                    else
-                        if entity == item then
-                            log(("Could not find any SP with the given name(%s) in item(%s)!"):format(
-                                propertyName.Value, item.Prefab.Identifier.Value), 'e')
-                        else
-                            log(("Could not find any SP with the given name(%s) in '%s->%s[%i]'!"):format(
-                                propertyName.Value, item.Prefab.Identifier.Value, indexer[1], indexer[3]), 'e')
-                        end
-                    end
-                else
-                    log(("Could not find any entity matching '%s[%i]' in '%s'!"):format(indexer[1], indexer[3],
-                        item.Prefab.Identifier.Value), 'e')
-                end
-            end
+        if itemblock._spedit then
+            itemblock._spedit:apply(item, log)
         end
 
         if itemblock.inventory then
@@ -171,14 +132,12 @@ local function spawn(itembuilds, context, debugname)
             debugname = #itemblock > 0 and itemblock or nil
         else
             if itemblock.ref then
-                local amount = itemblock:_getamount(context)
-                local num = math.floor(amount)
+                local num = itemblock:_getrepetitions(context)
                 for _ = 1, num, 1 do
                     spawn(itemblock.ref._itembuilds, context, nil)
                 end
             elseif itemblock.pool then
-                local amount = itemblock:_getamount(context)
-                local num = math.floor(amount)
+                local num = itemblock:_getrepetitions(context)
                 for _ = 1, num, 1 do
                     local object = utils.GetPoolItemBlockRandom(itemblock._pool_objects, itemblock._pool_weights)
                     spawn(object, context, debugname)
@@ -258,16 +217,16 @@ itembuilder.__index = itembuilder
 setmetatable(itembuilder, {
     ---@param itembuilds itembuilderblock[]
     __call = function(_, itembuilds)
-        local debugname = nil
-        local log = function(text, pattern)
-            if debugname then
-                log(("[DebugName:%s] %s"):format(debugname, text), pattern)
-            else
-                log(text, pattern)
-            end
-        end
         ---@param itblds itembuilderblock[]
-        local function construct(itblds)
+        ---@param debugname? string
+        local function construct(itblds, debugname)
+            local log = function(text, pattern)
+                if debugname then
+                    log(("[DebugName:%s] %s"):format(debugname, text), pattern)
+                else
+                    log(text, pattern)
+                end
+            end
             local _itblds = t_select(itblds, function(itemblock)
                 if type(itemblock) == "string" then
                     debugname = #itemblock > 0 and itemblock or nil
@@ -292,15 +251,13 @@ setmetatable(itembuilder, {
                         log(("itemblock is referenced to an invalid itembuilder!"), 'e')
                         return false
                     end
-                    function itemblock:_getamount()
+                    function itemblock:_getrepetitions()
                         if self.amount then
                             local amount = self._amount or
                                 self.amount[1] + math.random() * (self.amount[2] - self.amount[1])
-                            if self.amountround then amount = math.round(amount, 0) end
-                            return amount
+                            return math.floor(amount)
                         end
                     end
-
                     return true
                 elseif itemblock.pool then
                     local num = #itemblock.pool
@@ -318,14 +275,13 @@ setmetatable(itembuilder, {
                             end
                         end
                         for i, object in ipairs(itemblock._pool_objects) do
-                            itemblock._pool_objects[i] = construct(type(next(object)) == "number" and object or { object })
+                            itemblock._pool_objects[i] = construct(type(next(object)) == "number" and object or { object }, debugname)
                         end
-                        function itemblock:_getamount()
+                        function itemblock:_getrepetitions()
                             if self.amount then
                                 local amount = self._amount or
                                     self.amount[1] + math.random() * (self.amount[2] - self.amount[1])
-                                if self.amountround then amount = math.round(amount, 0) end
-                                return amount
+                                return math.floor(amount)
                             end
                         end
 
@@ -369,25 +325,9 @@ setmetatable(itembuilder, {
                     end
 
                     if itemblock.properties then
-                        local replace = {}
-                        for indexer, value in pairs(itemblock.properties) do
-                            if type(indexer) == "table" then
-                                if type(indexer[1]) == "string" and type(indexer[2]) == "string" then
-                                    indexer[2] = Identifier(indexer[2])
-                                else
-                                    log(("%s got an invalid properties' indexer(table) that its #1 or #2 element type is not string!")
-                                        :format(itemblock.identifier.Value), 'w')
-                                    return false
-                                end
-                            else
-                                itemblock.properties[indexer] = nil
-                                replace[indexer] = value
-                            end
-                        end
-                        for indexer, value in pairs(replace) do
-                            itemblock.properties[Identifier(indexer)] = value
-                        end
+                        itemblock._spedit = spedit(itemblock.properties, log)
                     end
+
                     if itemblock.serverevents then
                         if type(itemblock.serverevents) == "string" then
                             itemblock.serverevents = { { itemblock.serverevents } }
@@ -420,7 +360,7 @@ setmetatable(itembuilder, {
                         end
                     end
                     if itemblock.inventory then
-                        itemblock.inventory = construct(itemblock.inventory)
+                        itemblock.inventory = construct(itemblock.inventory, debugname)
                     end
                     return true
                 else
