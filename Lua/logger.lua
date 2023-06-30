@@ -7,9 +7,12 @@ local logtbl = {
 
 local showtrace = false
 
+---@class log
+---@overload fun(text:string, pattern?:'i'|'d'|'w'|'e')
+
 ---@param name string
----@return fun(text:string, pattern?:'i'|'d'|'w'|'e')
-local logger = function(name)
+---@return log
+local function logger(name)
     return function(text, pattern)
         text = text or type(nil)
         local logtype = logtbl[pattern and pattern:lower() or 'i'] or logtbl['i']
