@@ -1,3 +1,6 @@
+local l10n = require "l10n"
+local itbu = require "itbu"
+
 local category = {}
 
 category.Identifier = "clown"
@@ -8,8 +11,8 @@ category.CanAccess = function(client)
     return client.Character and not client.Character.IsDead and Traitormod.RoleManager.HasRole(client.Character, "Clown")
 end
 
-category.Init = function ()
-    local spawnInstallation = function (submarine, position, prefab)
+category.Init = function()
+    local spawnInstallation = function(submarine, position, prefab)
         if submarine == nil then
             Entity.Spawner.AddItemToSpawnQueue(prefab, position, nil, nil)
         else
@@ -17,7 +20,7 @@ category.Init = function ()
         end
     end
 
-    Hook.Add("statusEffect.apply.fixfoamgrenade", "Traitormod.FixFoamGrenadeJail", function (effect, deltaTime, item, targets, worldPosition)
+    Hook.Add("statusEffect.apply.fixfoamgrenade", "Traitormod.FixFoamGrenadeJail", function(effect, deltaTime, item, targets, worldPosition)
         if not item.HasTag("jailgrenade") then return end
 
         if effect.type == ActionType.OnSecondaryUse then
@@ -37,18 +40,17 @@ category.Init = function ()
             spawnInstallation(submarine, character.WorldPosition + Vector2(0, 90), ItemPrefab.Prefabs["hatch"])
             spawnInstallation(submarine, character.WorldPosition - Vector2(50, 0), ItemPrefab.Prefabs["door"])
             spawnInstallation(submarine, character.WorldPosition + Vector2(50, 0), ItemPrefab.Prefabs["door"])
-
         end
     end)
 
-    Hook.Add("traitormod.terminalWrite", "Traitormod.Pointshop.IdCardLocator", function (item, client, output)
+    Hook.Add("traitormod.terminalWrite", "Traitormod.Pointshop.IdCardLocator", function(item, client, output)
         if not item.HasTag("idcardlocator") then return end
         if not client.Character then return end
 
         if output ~= "scan" then return end
 
         local terminal = item.GetComponentString("Terminal")
-    
+
         for key, value in pairs(Util.GetItemsById("idcard")) do
             local distance = Vector2.Distance(client.Character.WorldPosition, value.WorldPosition)
             local idCard = value.GetComponentString("IdCard")
@@ -66,19 +68,19 @@ category.Products = {
         Price = 250,
         Limit = 4,
         IsLimitGlobal = false,
-        Items = {"badcreepingorange"},
+        Items = { "badcreepingorange" },
     },
 
     {
         Price = 10,
         Limit = 50,
-        Items = {"bananapeel"}
+        Items = { "bananapeel" }
     },
 
     {
         Price = 200,
         Limit = 3,
-        Items = {"deliriumine"}
+        Items = { "deliriumine" }
     },
 
     {
@@ -86,20 +88,18 @@ category.Products = {
         Price = 250,
         Limit = 5,
         IsLimitGlobal = false,
-        Action = function (client)
-            local grenade = ItemPrefab.GetItemPrefab("fixfoamgrenade")
-            Entity.Spawner.AddItemToSpawnQueue(grenade, client.Character.Inventory, nil, nil, function (item)
-                item.AddTag("jailgrenade")
-                item.Description = Traitormod.Language.Pointshop.jailgrenade_desc
-
-                item.set_InventoryIconColor(Color(255, 0, 0, 255))
-                item.SpriteColor = Color(255, 0, 0, 255)
-
-                local color = item.SerializableProperties[Identifier("SpriteColor")]
-                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(color, item))            
-                local invColor = item.SerializableProperties[Identifier("InventoryIconColor")]
-                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(invColor, item))
-            end)
+        Action = function(client)
+            itbu {
+                {
+                    identifier = "fixfoamgrenade",
+                    tags = "jailgrenade",
+                    properties = {
+                        Description = l10n { "Pointshop", "Clown", "jailgrenade_desc" }.value,
+                        inventoryiconcolor = "255,0,0,255",
+                        spritecolor = "255,0,0,255"
+                    },
+                }
+            }:give(client.Character)
         end
     },
 
@@ -108,12 +108,12 @@ category.Products = {
         Price = 200,
         Limit = 2,
         IsLimitGlobal = false,
-        Action = function (client)
+        Action = function(client)
             -- logic is implemented in pointshop/traitor.lua
             local handcuffs = ItemPrefab.GetItemPrefab("handcuffs")
-            Entity.Spawner.AddItemToSpawnQueue(handcuffs, client.Character.Inventory, nil, nil, function (item)
+            Entity.Spawner.AddItemToSpawnQueue(handcuffs, client.Character.Inventory, nil, nil, function(item)
                 item.Tags = "fakehandcuffs"
-                Traitormod.SendChatMessage(client, Traitormod.Language.FakeHandcuffsUsage , Color.Aqua)
+                Traitormod.SendChatMessage(client, Traitormod.Language.FakeHandcuffsUsage, Color.Aqua)
             end)
         end
     },
@@ -123,10 +123,10 @@ category.Products = {
         Price = 400,
         Limit = 2,
         IsLimitGlobal = false,
-        Action = function (client)
+        Action = function(client)
             local clownCrate = ItemPrefab.GetItemPrefab("clowncrate")
-            Entity.Spawner.AddItemToSpawnQueue(clownCrate, client.Character.Inventory, nil, nil, function (item)
-                local items = {"clowncostume", "clowncostume", "clownsuitunique", "clownsuitunique", "clowndivingmask", "clowndivingmask", "clownmask", "clownmask", "clownmaskunique", "clownmaskunique", "toyhammer", "bikehorn"}
+            Entity.Spawner.AddItemToSpawnQueue(clownCrate, client.Character.Inventory, nil, nil, function(item)
+                local items = { "clowncostume", "clowncostume", "clownsuitunique", "clownsuitunique", "clowndivingmask", "clowndivingmask", "clownmask", "clownmask", "clownmaskunique", "clownmaskunique", "toyhammer", "bikehorn" }
 
                 for key, value in pairs(items) do
                     Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.Prefabs[value], item.OwnInventory)
@@ -140,10 +140,10 @@ category.Products = {
         Price = 1300,
         Limit = 1,
         IsLimitGlobal = false,
-        Action = function (client)
+        Action = function(client)
             local clownExosuit = ItemPrefab.GetItemPrefab("clownexosuit")
-            Entity.Spawner.AddItemToSpawnQueue(clownExosuit, client.Character.Inventory, nil, nil, function (item)
-                local items = {"fuelrod", "oxygenitetank"}
+            Entity.Spawner.AddItemToSpawnQueue(clownExosuit, client.Character.Inventory, nil, nil, function(item)
+                local items = { "fuelrod", "oxygenitetank" }
 
                 for key, value in pairs(items) do
                     Entity.Spawner.AddItemToSpawnQueue(ItemPrefab.Prefabs[value], item.OwnInventory)
@@ -157,9 +157,9 @@ category.Products = {
         Price = 500,
         Limit = 1,
         IsLimitGlobal = false,
-        Action = function (client)
+        Action = function(client)
             local logbook = ItemPrefab.GetItemPrefab("logbook")
-            Entity.Spawner.AddItemToSpawnQueue(logbook, client.Character.Inventory, nil, nil, function (item)
+            Entity.Spawner.AddItemToSpawnQueue(logbook, client.Character.Inventory, nil, nil, function(item)
                 item.Description = Traitormod.Language.Pointshop.idcardlocator_desc
                 item.set_InventoryIconColor(Color(255, 0, 0, 255))
                 item.SpriteColor = Color(255, 0, 0, 255)
@@ -173,7 +173,6 @@ category.Products = {
                 local terminal = item.GetComponentString("Terminal")
                 terminal.ShowMessage = "Type \"scan\" to scan for id cards."
                 terminal.SyncHistory()
-        
             end)
         end
     },
@@ -181,25 +180,25 @@ category.Products = {
     {
         Price = 300,
         Limit = 10,
-        Items = {"cymbals"}
+        Items = { "cymbals" }
     },
 
     {
         Price = 190,
         Limit = 5,
-        Items = {"pressurestabilizer"}
+        Items = { "pressurestabilizer" }
     },
 
     {
         Price = 130,
         Limit = 5,
-        Items = {"rum"}
+        Items = { "rum" }
     },
 
     {
         Price = 100,
         Limit = 10,
-        Items = {"smallmudraptoregg", "antibloodloss1", "antibloodloss1"}
+        Items = { "smallmudraptoregg", "antibloodloss1", "antibloodloss1" }
     },
 
     {
@@ -207,7 +206,7 @@ category.Products = {
         Price = 400,
         Limit = 1,
         IsLimitGlobal = false,
-        Action = function (client, product, items)
+        Action = function(client, product, items)
             client.Character.GiveTalent("enrollintoclowncollege")
             client.Character.GiveTalent("waterprankster")
             client.Character.GiveTalent("chonkyhonks")
@@ -221,7 +220,7 @@ category.Products = {
         Price = 290,
         Limit = 1,
         IsLimitGlobal = false,
-        Action = function (client, product, items)
+        Action = function(client, product, items)
             client.Character.GiveTalent("firemanscarry")
         end
     },
@@ -231,9 +230,9 @@ category.Products = {
         Price = 500,
         Limit = 1,
         IsLimitGlobal = false,
-        Action = function (client)
+        Action = function(client)
             local suit = ItemPrefab.GetItemPrefab("divingsuit")
-            Entity.Spawner.AddItemToSpawnQueue(suit, client.Character.Inventory, nil, nil, function (item)
+            Entity.Spawner.AddItemToSpawnQueue(suit, client.Character.Inventory, nil, nil, function(item)
                 local light = item.GetComponentString("LightComponent")
 
                 item.set_InventoryIconColor(Color(100, 100, 100, 50))
@@ -242,7 +241,7 @@ category.Products = {
                 light.LightColor = Color(0, 0, 0, 0)
 
                 local color = item.SerializableProperties[Identifier("SpriteColor")]
-                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(color, item))            
+                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(color, item))
                 local invColor = item.SerializableProperties[Identifier("InventoryIconColor")]
                 Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(invColor, item))
                 local lightColor = light.SerializableProperties[Identifier("LightColor")]
@@ -252,27 +251,25 @@ category.Products = {
             end)
 
             local robes = ItemPrefab.GetItemPrefab("cultistrobes")
-            Entity.Spawner.AddItemToSpawnQueue(robes, client.Character.Inventory, nil, nil, function (item)
-
+            Entity.Spawner.AddItemToSpawnQueue(robes, client.Character.Inventory, nil, nil, function(item)
                 item.set_InventoryIconColor(Color(100, 100, 100, 50))
                 item.SpriteColor = Color(0, 0, 0, 0)
                 item.Tags = "smallitem"
 
                 local color = item.SerializableProperties[Identifier("SpriteColor")]
-                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(color, item))            
+                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(color, item))
                 local invColor = item.SerializableProperties[Identifier("InventoryIconColor")]
                 Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(invColor, item))
             end)
 
             local cap = ItemPrefab.GetItemPrefab("ironhelmet")
-            Entity.Spawner.AddItemToSpawnQueue(cap, client.Character.Inventory, nil, nil, function (item)
-
+            Entity.Spawner.AddItemToSpawnQueue(cap, client.Character.Inventory, nil, nil, function(item)
                 item.set_InventoryIconColor(Color(100, 100, 100, 50))
                 item.SpriteColor = Color(0, 0, 0, 0)
                 item.Tags = "smallitem"
 
                 local color = item.SerializableProperties[Identifier("SpriteColor")]
-                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(color, item))            
+                Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(color, item))
                 local invColor = item.SerializableProperties[Identifier("InventoryIconColor")]
                 Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(invColor, item))
             end)
@@ -283,14 +280,14 @@ category.Products = {
         Price = 250,
         Limit = 4,
         IsLimitGlobal = false,
-        Items = {"chloralhydrate", "chloralhydrate", "chloralhydrate", "chloralhydrate"},
+        Items = { "chloralhydrate", "chloralhydrate", "chloralhydrate", "chloralhydrate" },
     },
 
     {
         Price = 950,
         Limit = 3,
         IsLimitGlobal = false,
-        Items = {"detonator"},
+        Items = { "detonator" },
     },
 
     {
@@ -299,11 +296,11 @@ category.Products = {
         Limit = 4,
         IsLimitGlobal = true,
 
-        CanBuy = function (client, product)
+        CanBuy = function(client, product)
             return not Traitormod.RoundEvents.IsEventActive("ClownMagic")
         end,
 
-        Action = function ()
+        Action = function()
             Traitormod.RoundEvents.TriggerEvent("ClownMagic")
         end
     },
@@ -314,11 +311,11 @@ category.Products = {
         Limit = 5,
         IsLimitGlobal = true,
 
-        CanBuy = function (client, product)
+        CanBuy = function(client, product)
             return not Traitormod.RoundEvents.IsEventActive("RandomLights")
         end,
 
-        Action = function ()
+        Action = function()
             Traitormod.RoundEvents.TriggerEvent("RandomLights")
         end
     },

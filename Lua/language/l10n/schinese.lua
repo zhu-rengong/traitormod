@@ -12,5 +12,10 @@ return {
             EscapeComplete2Crews = [[无能狂怒的船员：混账东西！#@*&￥#@……你们把小丑弄跑了！]],
             EscapeComplete2Clown = [[赞美小丑圣母！你成功逃离了潜艇，并获得 {1} 点积分的奖励！]],
         }
+    },
+    Pointshop = {
+        Clown = {
+            jailgrenade_desc = "‖color:gui.red‖一颗特殊的手雷，有一个有趣的惊喜...‖color:end‖"
+        }
     }
 }

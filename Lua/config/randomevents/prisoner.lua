@@ -50,7 +50,7 @@ event.Start = function ()
     itbu {
         { identifier = "prisonerclothes", equip = true },
         { identifier = "handcuffs", equip = true },
-    }
+    }:give(character)
 
     local text = string.format(Traitormod.Language.PrisonerAboard, event.Award)
     Traitormod.RoundEvents.SendEventMessage(text, "GameModeIcon.sandbox", Color.Yellow)
