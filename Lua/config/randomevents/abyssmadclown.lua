@@ -1,7 +1,8 @@
-local l10nmgr = require "l10n"
-local itbu = require "itbu"
-local spedit = require "spedit"
-local think = require "think"
+local l10nmgr = require "utilbelt.l10n"
+local itbu = require "utilbelt.itbu"
+local itbat = require "utilbelt.itbat"
+local spedit = require "utilbelt.spedit"
+local think = require "utilbelt.think"
 
 local event = {}
 
@@ -19,6 +20,30 @@ event.AmountPointsClownEscape = 400
 event.EscapeDistance = 5000
 event.SurvivalInterval = 30
 event.AwardClownLimit = 5
+
+local cleanupitbat = itbat {
+    slottype = { InvSlotType.Any, InvSlotType.Bag, InvSlotType.InnerClothes, InvSlotType.Head },
+    drop = true,
+    remove = true
+}
+
+local lockidcarditbat = itbat {
+    slottype = InvSlotType.Card,
+    properties = { nonplayerteaminteractable = true }
+}
+
+local wiretapitbat = itbat {
+    slottype = InvSlotType.Headset,
+    properties = { [{ "WifiComponent", "TeamID" }] = CharacterTeamType.Team1 }
+}
+
+local explodeitbat = itbat {
+    identifiers = "toolbelt",
+    inventory = {
+        identifiers = "guardianpod",
+        properties = { condition = 0 }
+    }
+}
 
 local clownitbu = itbu { "AbyssMadClown",
     { identifier = "clowncostume", equip = true },
@@ -148,28 +173,9 @@ event.Start = function()
     character.TeamID = CharacterTeamType.Team2
     character.GiveJobItems(nil)
 
-    for item in character.Inventory.AllItemsMod do
-        if not character.Inventory.IsInLimbSlot(item, InvSlotType.Card)
-            and not character.Inventory.IsInLimbSlot(item, InvSlotType.Headset) then
-            item.Drop()
-            Entity.Spawner.AddEntityToRemoveQueue(item)
-        end
-    end
-
-    local idCard = character.Inventory.GetItemInLimbSlot(InvSlotType.Card)
-    if idCard then
-        spedit {
-            nonplayerteaminteractable = true
-        }:apply(idCard)
-    end
-
-    local headset = character.Inventory.GetItemInLimbSlot(InvSlotType.Headset)
-    if headset then
-        spedit {
-            [{ "WifiComponent", "TeamID" }] = CharacterTeamType.Team1
-        }:apply(headset)
-    end
-
+    cleanupitbat:runforinv(character.Inventory)
+    lockidcarditbat:runforinv(character.Inventory)
+    wiretapitbat:runforinv(character.Inventory)
     clownitbu:give(character)
 
     character.CharacterHealth.ApplyAffliction(character.AnimController.MainLimb, AfflictionPrefab.Prefabs["pressurestabilized"].Instantiate(math.huge))
@@ -215,10 +221,8 @@ event.Start = function()
                 local amountPoints = isHandcuffedAndNaked and event.AmountPoints or event.AmountPoints / 3
                 if isHandcuffedAndNaked then
                     itbu {
-                        {
-                            identifier = "empgrenade",
-                            properties = { condition = 0 }
-                        }
+                        identifier = "empgrenade",
+                        properties = { condition = 0 }
                     }:spawnat(character.WorldPosition)
                     for _, limb in ipairs(character.AnimController.Limbs) do
                         character.TrySeverLimbJoints(limb, 1, 114514, true)
@@ -227,12 +231,7 @@ event.Start = function()
                 else
                     Traitormod.RoundEvents.SendEventMessage(l10nmgr { "RandomEvents", "AbyssMadClown", "KilledNormally" }:format(amountPoints), "CrewWalletIconLarge")
                 end
-                for item in character.Inventory.AllItemsMod do
-                    if item.Prefab.Identifier.value == "toolbelt" and item.NonInteractable == true then
-                        item.Drop()
-                        Entity.Spawner.AddEntityToRemoveQueue(item)
-                    end
-                end
+                explodeitbat:runforinv(character.Inventory)
                 for _, client in pairs(Client.ClientList) do
                     if client.Character and not client.Character.IsDead and client.Character.TeamID == CharacterTeamType.Team1 then
                         Traitormod.AwardPoints(client, amountPoints)

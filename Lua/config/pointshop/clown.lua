@@ -1,5 +1,5 @@
-local l10n = require "l10n"
-local itbu = require "itbu"
+local l10nmgr = require "utilbelt.l10n"
+local itbu = require "utilbelt.itbu"
 
 local category = {}
 
@@ -94,7 +94,7 @@ category.Products = {
                     identifier = "fixfoamgrenade",
                     tags = "jailgrenade",
                     properties = {
-                        Description = l10n { "Pointshop", "Clown", "jailgrenade_desc" }.value,
+                        description = l10nmgr { "Pointshop", "Clown", "jailgrenade_desc" }.value,
                         inventoryiconcolor = "255,0,0,255",
                         spritecolor = "255,0,0,255"
                     },

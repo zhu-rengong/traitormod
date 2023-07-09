@@ -96,3 +96,7 @@ There is a chance that a random event fires some time during the round.
 
 > • *Emergency Team*
 > A group of 4 bots consisting of mechanics and engineers will come to the submarine to help fix things.
+
+__**Dependency**__
+
+- [Lua Utility Belt](https://steamcommunity.com/sharedfiles/filedetails/changelog/2999344925)

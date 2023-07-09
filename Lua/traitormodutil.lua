@@ -9,7 +9,6 @@ loadfile(Traitormod.Path .. "/Lua/config/config.lua")(Traitormod.Config)
 
 Traitormod.Patching = loadfile(Traitormod.Path .. "/Lua/xmlpatching.lua")(Traitormod.Path)
 
-Traitormod.L10N = Traitormod.Config.L10N
 Traitormod.Languages = Traitormod.Config.Languages
 
 Traitormod.DefaultLanguage = Traitormod.Languages[1]
@@ -29,12 +28,7 @@ for key, value in pairs(Traitormod.Languages) do
     end
 end
 
-for _, value in pairs(Traitormod.L10N) do
-    if Traitormod.Language.Name == value[1] then
-        require "l10n".setlang(value)
-        break
-    end
-end
+require "utilbelt.l10n".loadlangs(Traitormod.Path .. "/Lua/language/l10n")
 
 local json = dofile(Traitormod.Path .. "/Lua/json.lua")
 

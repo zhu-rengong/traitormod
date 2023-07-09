@@ -1,4 +1,4 @@
-local itbu = require "itbu"
+local itbu = require "utilbelt.itbu"
 
 local event = {}
 

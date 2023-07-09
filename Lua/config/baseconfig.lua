@@ -5,9 +5,6 @@ local config = {}
 config.DebugLogs = true
 
 ----- USER FEEDBACK -----
-config.L10N = {
-    dofile(Traitormod.Path .. "/Lua/language/l10n/schinese.lua"),
-}
 config.Languages = {
     dofile(Traitormod.Path .. "/Lua/language/english.lua"), -- If it can't find a specific language key, it will always fallback to the first language on the list.
     dofile(Traitormod.Path .. "/Lua/language/russian.lua"),

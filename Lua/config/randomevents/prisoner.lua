@@ -1,4 +1,5 @@
-local itbu = require "itbu"
+local itbu = require "utilbelt.itbu"
+local itbat = require "utilbelt.itbat"
 
 local event = {}
 
@@ -11,7 +12,7 @@ event.ChancePerMinute = 0.07
 event.OnlyOncePerRound = true
 event.Award = 1500
 
-event.Start = function ()
+event.Start = function()
     local position = nil
 
     for key, value in pairs(Submarine.MainSub.GetWaypoints(true)) do
@@ -36,33 +37,28 @@ event.Start = function ()
     character.TeamID = CharacterTeamType.Team2
     character.GiveJobItems(nil)
 
-    local oldClothes = character.Inventory.GetItemInLimbSlot(InvSlotType.InnerClothes)
-    oldClothes.Drop()
-    Entity.Spawner.AddEntityToRemoveQueue(oldClothes)
-
-    for key, value in pairs(character.Inventory.AllItemsMod) do
-        if value.Prefab.Identifier == "screwdriver" or value.Prefab.Identifier == "wrench" then
-            value.Drop()
-            Entity.Spawner.AddEntityToRemoveQueue(value)
-        end
-    end
+    itbat {
+        slottype = { InvSlotType.InnerClothes, InvSlotType.Any },
+        drop = true,
+        remove = true
+    }:runforinv(character.Inventory)
 
     itbu {
         { identifier = "prisonerclothes", equip = true },
-        { identifier = "handcuffs", equip = true },
+        { identifier = "handcuffs", tags = "fakehandcuffs", equip = true },
     }:give(character)
 
     local text = string.format(Traitormod.Language.PrisonerAboard, event.Award)
     Traitormod.RoundEvents.SendEventMessage(text, "GameModeIcon.sandbox", Color.Yellow)
 
-    Traitormod.GhostRoles.Ask("Prisoner", function (client)
+    Traitormod.GhostRoles.Ask("Prisoner", function(client)
         Traitormod.LostLivesThisRound[client.SteamID] = false
         client.SetClientCharacter(character)
 
         Traitormod.SendMessageCharacter(character, string.format(Traitormod.Language.PrisonerYou, event.Award), "InfoFrameTabButton.Mission")
     end, character)
 
-    Hook.Add("think", "Prisoner.Think", function ()
+    Hook.Add("think", "Prisoner.Think", function()
         if character.IsDead then
             event.End()
             return
@@ -83,7 +79,7 @@ event.Start = function ()
 end
 
 
-event.End = function (isEndRound)
+event.End = function(isEndRound)
     Hook.Remove("think", "Prisoner.Think")
 
     if event.Character and event.Character.IsDead then

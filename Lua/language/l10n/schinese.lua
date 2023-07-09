@@ -1,5 +1,5 @@
 return {
-    [[SChinese]],
+    [[Simplified Chinese]],
     RandomEvents = {
         AbyssMadClown = {
             Start = [[有报告称，一个穿着小丑服的“人—类？”正游荡在主潜艇附近，有不少船员隐约听到了从外部传来的怪声，这让他们感到很不安，抓获并羞辱(上铐、脱衣、击毙)小丑将获得最高 {1} 点积分的奖励。]],
